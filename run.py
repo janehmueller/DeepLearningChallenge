@@ -2,7 +2,7 @@ import argparse
 import json
 from os import path
 
-from util.FileLoader import File, TrainFile
+from util.file_loader import File, TrainFile
 
 
 def main():
