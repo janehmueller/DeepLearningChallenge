@@ -1,0 +1,10 @@
+{
+  "data_path": "undefined",
+  "files": {
+    "train": [
+      {
+        "path": "captions_train2014.pretty.json"
+      }
+    ]
+  }
+}
