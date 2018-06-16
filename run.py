@@ -2,7 +2,7 @@ import argparse
 import json
 from os import path
 
-from util.FileLoader import File
+from util.FileLoader import File, TrainFile
 
 
 def main():
@@ -14,12 +14,9 @@ def main():
 
     args = parser.parse_args()
 
-    file_data = []
+    file_data = TrainFile(path.join(args.data_path, base_configurations['files']['train']['captions']['path']))
 
-    for fileInfo in base_configurations['files']['train']:
-        file_data.append(File(path.join(args.data_path, fileInfo['path'])))
-
-    print(len(file_data))
+    print(file_data)
 
 
 if __name__ == '__main__':

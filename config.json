@@ -1,10 +1,13 @@
 {
   "data_path": "/data/dl_lecture_data/TrainVal/annotations",
   "files": {
-    "train": [
-      {
-        "path": "captions_train2014.pretty.json"
-      }
-    ]
+    "train": {
+    	"captions": {
+    		"path": "captions_train2014.json"
+    	},
+    	"instances": {
+    		"path": "instances_train2014.json"	
+    	}
+     }
   }
 }
