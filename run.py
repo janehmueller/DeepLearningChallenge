@@ -1,22 +1,24 @@
 import argparse
-import json
 from os import path
 
-from util.file_loader import File, TrainFile
+from util.config import base_configuration
+from util.file_loader import TrainFile
+from util.word_vectors import WordVector
+
+import keras
 
 
 def main():
-    with open(path.join(path.dirname(__file__), 'config.json')) as config_file:
-        base_configurations = json.load(config_file)
-
     parser = argparse.ArgumentParser(description='Superawesome image captioning')
-    parser.add_argument('--dataPath', dest='data_path', default=base_configurations['data_path'])
+    parser.add_argument('--dataPath', dest='data_path', default=base_configuration['data_path'])
 
     args = parser.parse_args()
 
-    file_data = TrainFile(path.join(args.data_path, base_configurations['files']['train']['captions']['path']))
+    file_data = TrainFile(path.join(args.data_path, base_configuration['files']['train']['captions']['path']))
 
     print(file_data)
+
+    WordVector(['one', 'two', 'three'], keras.initializers.RandomUniform(0, 1), 'fasttext')
 
 
 if __name__ == '__main__':

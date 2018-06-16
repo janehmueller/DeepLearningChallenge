@@ -2,3 +2,4 @@ keras~=2.2.0
 tensorflow-gpu~=1.8.0
 h5py
 pillow
+requests

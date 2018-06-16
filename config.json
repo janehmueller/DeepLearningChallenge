@@ -1,5 +1,6 @@
 {
   "data_path": "/data/dl_lecture_data/TrainVal/annotations",
+  "pretrained_models_path": "data/pretrained",
   "files": {
     "train": {
     	"captions": {
@@ -8,6 +9,26 @@
     	"instances": {
     		"path": "instances_train2014.json"	
     	}
-     }
+     },
+    "pretrained": {
+      "word_vectors": {
+        "fasttext": {
+          "path": "fasttext/wiki.en.vec",
+          "embedding_size": 300,
+          "uri": {
+            "url": "https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec",
+            "type": "file"
+          }
+        },
+        "glove": {
+          "path": "glove/glove.42B.300d.txt",
+          "embedding_size": 300,
+          "uri": {
+            "url": "http://nlp.stanford.edu/data/glove.42B.300d.zip",
+            "type": "zip"
+          }
+        }
+      }
+    }
   }
 }
