@@ -1,6 +1,4 @@
 import json
-from keras.preprocessing.text import Tokenizer
-
 
 class File:
     def __init__(self, path):
