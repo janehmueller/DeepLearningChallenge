@@ -21,7 +21,7 @@ class CaptionPreprocessor(object):
     def vocabs(self):
         """
         Returns word index of vocabulary sorted by the ids
-        :return:
+        :return: word index of vocabulary sorted by the idsg
         """
         word_index = self.tokenizer.word_index
         return sorted(word_index, key=word_index.get)
