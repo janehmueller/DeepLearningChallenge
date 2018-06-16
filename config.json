@@ -1,5 +1,5 @@
 {
-  "data_path": "undefined",
+  "data_path": "/data/dl_lecture_data/TrainVal/annotations",
   "files": {
     "train": [
       {
