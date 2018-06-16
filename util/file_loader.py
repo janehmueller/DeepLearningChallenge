@@ -1,5 +1,6 @@
 import json
 
+
 class File:
     def __init__(self, path):
         self.path = path
@@ -26,5 +27,3 @@ class TrainFile(File):
 
     def captions(self):
         return [annotation['caption'] for annotation in self.data['annotations']]
-
-        
