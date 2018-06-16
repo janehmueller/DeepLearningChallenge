@@ -1,6 +1,8 @@
 from typing import List
 
-from keras_preprocessing.text import Tokenizer
+from keras_preprocessing.sequence import pad_sequences
+from keras_preprocessing.text import Tokenizer, text_to_word_sequence
+import numpy as np
 
 
 class CaptionPreprocessor(object):
@@ -67,7 +69,26 @@ class CaptionPreprocessor(object):
         return decoded_captions
 
     def preprocess_batch(self, captions_label_encoded):
-        raise NotImplementedError
+        captions = pad_sequences(captions_label_encoded, padding="post")  # pad with trailing zeros
+
+        # The number of timesteps/words the model outputs is maxlen(captions) + 1 because the first "word" is an image
+        captions_extended1 = pad_sequences(captions, maxlen=captions.shape[-1] + 1, padding="post")
+        captions_one_hot = map(self.tokenizer.sequences_to_matrix, np.expand_dims(captions_extended1, -1))
+        captions_one_hot = np.array(captions_one_hot, dtype="int")
+
+        # Left-shift one-hot encoding by one to set padding to 0 (so that error will be 0.0)
+        # Decrease indices to adjust for change in one-hot encoding
+        captions_decreased = captions.copy()
+        captions_decreased[captions_decreased > 0] -= 1
+        captions_one_hot_shifted = captions_one_hot[:, :, 1:]
+
+        captions_input = captions_decreased
+        captions_output = captions_one_hot_shifted
+        return captions_input, captions_output
+
+    def normalize_captions(self, captions: List[str]):
+        word_sequences = map(text_to_word_sequence, self.add_eos(captions))
+        return map(' '.join, word_sequences)
 
     def captions_length(self, captions):
         """
