@@ -2,7 +2,9 @@ from typing import List
 
 from keras_preprocessing.text import Tokenizer
 
+
 class CaptionPreprocessor(object):
+    # End of sentence token
     EOS_TOKEN = 'zeosz'
 
     def __init__(self):
