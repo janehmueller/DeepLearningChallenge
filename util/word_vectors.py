@@ -65,7 +65,6 @@ class WordVector(object):
                 with ZipFile(zip_file, "r") as zip_ref:
                     zip_ref.extractall(path.dirname(self._input_file))
 
-
     def vectorize_words(self, words):
         vectors = []
         for word in words:

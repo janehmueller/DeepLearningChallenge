@@ -7,6 +7,9 @@ from keras.layers import BatchNormalization, Dense, RepeatVector, Embedding, GRU
 from keras.optimizers import Adam
 from keras.regularizers import l1_l2
 
+from util.metrics import categorical_crossentropy_from_logits, categorical_accuracy_with_variable_timestep
+from util.word_vectors import WordVector
+
 
 class Model(object):
     def __init__(self,
@@ -101,8 +104,7 @@ class Model(object):
                 embeddings_regularizer=self.regularizer
             )(sentence_input)
         else:
-            WordVector = get_word_vector_class(self.word_vector_init)
-            word_vector = WordVector(vocabulary, self.initializer)
+            word_vector = WordVector(vocabulary, self.initializer, self.word_vector_init)
             embedding_weights = word_vector.vectorize_words(vocabulary)
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
