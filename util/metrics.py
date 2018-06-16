@@ -79,7 +79,7 @@ class BLEU(Score):
         scores = name_to_score.values()[0]
         result = {}
         for index, score in enumerate(scores, start=1):
-            name = f"{self.score_name}_{index}"
+            name = self.score_name + "_" + index
             result[name] = score
 
 
