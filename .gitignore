@@ -3,6 +3,7 @@
 
 
 data
+!data/.gitkeep
 
 ## File-based project format:
 *.iws

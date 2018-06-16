@@ -18,7 +18,7 @@ def main():
 
     print(file_data)
 
-    WordVector(['one', 'two', 'three'], keras.initializers.RandomUniform(0, 1), 'fasttext')
+    WordVector(['one', 'two', 'three'], keras.initializers.RandomUniform(0, 1), 'glove')
 
 
 if __name__ == '__main__':
