@@ -14,8 +14,12 @@ def main():
 
     args = parser.parse_args()
 
+    file_data = []
+
     for fileInfo in base_configurations['files']['train']:
-        File(path.join(args.data_path, fileInfo['path'])).preprocess()
+        file_data.append(File(path.join(args.data_path, fileInfo['path'])))
+
+    print(len(file_data))
 
 
 if __name__ == '__main__':
