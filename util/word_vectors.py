@@ -8,7 +8,7 @@ from os import path
 import numpy as np
 from keras import backend as K, initializers
 
-from util.caption_preprocessor import CaptionPreprocessor
+from util.preprocessors import CaptionPreprocessor
 from util.config import base_configuration
 
 

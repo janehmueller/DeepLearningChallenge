@@ -2,7 +2,25 @@ from typing import List
 
 from keras_preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer, text_to_word_sequence
+from keras.preprocessing.image import img_to_array, load_img
+from keras.applications import inception_v3
 import numpy as np
+
+
+class ImagePreprocessor(object):
+    IMAGE_SIZE = (299, 299)  # Inceptionv3 input size
+
+    def preprocess_image(self, path):
+        image = load_img(path, target_size=self.IMAGE_SIZE)
+        image_array = img_to_array(image)
+        image_array = inception_v3.preprocess_input(image_array)
+        return image_array
+
+    def preprocess_batch(self, image_list):
+        return np.array(image_list)
+
+    def preprocess_images(self, image_paths):
+        return map(self.preprocess_image, image_paths)
 
 
 class CaptionPreprocessor(object):
