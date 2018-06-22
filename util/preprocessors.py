@@ -1,4 +1,6 @@
+from collections import Iterable
 from typing import List
+from functools import partial
 
 from keras_preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer, text_to_word_sequence
@@ -10,7 +12,8 @@ import numpy as np
 class ImagePreprocessor(object):
     IMAGE_SIZE = (299, 299)  # Inceptionv3 input size
 
-    def preprocess_image(self, path):
+    def preprocess_image(self, path, random_transform=True):
+        # TODO handle random transform
         image = load_img(path, target_size=self.IMAGE_SIZE)
         image_array = img_to_array(image)
         image_array = inception_v3.preprocess_input(image_array)
@@ -19,8 +22,8 @@ class ImagePreprocessor(object):
     def preprocess_batch(self, image_list):
         return np.array(image_list)
 
-    def preprocess_images(self, image_paths):
-        return map(self.preprocess_image, image_paths)
+    def preprocess_images(self, image_paths, random_transform=True):
+        return map(partial(self.preprocess_image, random_transform=random_transform), image_paths)
 
 
 class CaptionPreprocessor(object):
@@ -30,6 +33,7 @@ class CaptionPreprocessor(object):
     def __init__(self):
         self.tokenizer = Tokenizer()
         self.word_dictionary = {}
+        self.word_of = None
 
     def eos_index(self):
         """
@@ -46,7 +50,11 @@ class CaptionPreprocessor(object):
         word_index = self.tokenizer.word_index
         return sorted(word_index, key=word_index.get)
 
-    def add_eos(self, captions: List[str]):
+    @property
+    def vocab_size(self):
+        return len(self.tokenizer.word_index)
+
+    def add_eos(self, captions: Iterable):
         return map(lambda x: x + ' ' + self.EOS_TOKEN, captions)
 
     def preprocess_captions(self, captions: List[str]):
@@ -55,7 +63,7 @@ class CaptionPreprocessor(object):
         self.tokenizer.fit_on_texts(captions)
         self.word_dictionary = {index: word for word, index in self.tokenizer.word_index.items()}
 
-    def encode_captions(self, captions: List[str]):
+    def encode_captions(self, captions: Iterable):
         captions = self.add_eos(captions)
         return self.tokenizer.texts_to_sequences(captions)
 
@@ -118,3 +126,9 @@ class CaptionPreprocessor(object):
         zero_filtered_captions = collapsed_one_hot_encodings != 0
         caption_lengths = zero_filtered_captions.sum(axis=1)
         return caption_lengths
+
+    def fit_on_captions(self, captions_txt):
+        captions_txt = self.handle_rare_words(captions_txt)
+        captions_txt = self.add_eos(captions_txt)
+        self.tokenizer.fit_on_texts(captions_txt)
+        self.word_of = {i: w for w, i in self.tokenizer.word_index.items()}
