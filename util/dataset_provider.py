@@ -37,18 +37,15 @@ class DatasetProvider(object):
 
     @property
     def training_steps(self):
-        return int(ceil(1. * self._dataset.training_set_size /
-                        self._batch_size))
+        return int(ceil(1. * self._dataset.training_set_size / self._batch_size))
 
     @property
     def validation_steps(self):
-        return int(ceil(1. * self._dataset.validation_set_size /
-                        self._batch_size))
+        return int(ceil(1. * self._dataset.validation_set_size / self._batch_size))
 
     @property
     def test_steps(self):
-        return int(ceil(1. * self._dataset.test_set_size /
-                        self._batch_size))
+        return int(ceil(1. * self._dataset.test_set_size / self._batch_size))
 
     @property
     def training_results_dir(self):
