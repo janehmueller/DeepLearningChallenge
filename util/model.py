@@ -7,6 +7,7 @@ from keras.layers import BatchNormalization, Dense, RepeatVector, Embedding, GRU
 from keras.optimizers import Adam
 from keras.regularizers import l1_l2
 
+from util.config import base_configuration
 from util.metrics import categorical_crossentropy_from_logits, categorical_accuracy_with_variable_timestep
 from util.word_vectors import WordVector
 
@@ -27,20 +28,20 @@ class Model(object):
                  word_vector_init=None):
         self.keras_model = None
 
-        self.learning_rate = learning_rate
-        self.vocab_size = vocab_size
-        self.embedding_size = embedding_size
-        self.rnn_output_size = rnn_output_size
-        self.dropout_rate = dropout_rate
-        self.rnn_type = rnn_type
-        self.rnn_layers = rnn_layers
-        self.word_vector_init = word_vector_init
+        self.learning_rate = learning_rate or base_configuration["params"]["learning_rate"]
+        self.vocab_size = vocab_size or base_configuration["params"]["vocab_size"]
+        self.embedding_size = embedding_size or base_configuration["params"]["embedding_size"]
+        self.rnn_output_size = rnn_output_size or base_configuration["params"]["rnn_output_size"]
+        self.dropout_rate = dropout_rate or base_configuration["params"]["dropout_rate"]
+        self.rnn_type = rnn_type or base_configuration["params"]["rnn_type"]
+        self.rnn_layers = rnn_layers or base_configuration["params"]["rnn_layers"]
+        self.word_vector_init = word_vector_init or base_configuration["params"]["word_vector_init"]
 
-        self.initializer = initializer
+        self.initializer = initializer or base_configuration["params"]["initializer"]
         if self.initializer == 'vinyals_uniform':
             self.initializer = RandomUniform(-0.08, 0.08)
 
-        self.bidirectional_rnn = bidirectional_rnn
+        self.bidirectional_rnn = bidirectional_rnn or base_configuration["params"]["bidirectional_rnn"]
 
         self.regularizer = l1_l2(l1_reg, l2_reg)
 
