@@ -1,5 +1,6 @@
 {
-  "data_path": "/data/dl_lecture_data/TrainVal/annotations",
+  "data_path": "/data/dl_lecture_data/TrainVal",
+  "tmp_path": "tmp",
   "pretrained_models_path": "data/pretrained",
   "files": {
     "train": {
@@ -49,7 +50,7 @@
     "reduce_lr_patience": 3,
     "rnn_layers": 3,
     "rnn_output_size": 300,
-    "rnn_type": "lstm"
+    "rnn_type": "lstm",
     "time_limit": null,
     "vocab_size": 2536,
     "word_vector_init": "fasttext"

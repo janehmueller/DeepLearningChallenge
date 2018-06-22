@@ -6,6 +6,7 @@ from operator import attrgetter
 from itertools import chain
 
 from util.config import base_configuration
+from util.dataset import CocoDataset
 from .preprocessors import CaptionPreprocessor, ImagePreprocessor
 
 
@@ -18,7 +19,7 @@ class DatasetProvider(object):
         If an arg is None, it will get its value from config.active_config.
         """
         self._batch_size = base_configuration['params']['batch_size']
-        self._dataset = dataset
+        self._dataset = dataset or CocoDataset()
         self._image_preprocessor = image_preprocessor or ImagePreprocessor()
         self._caption_preprocessor = CaptionPreprocessor()
         self._single_caption = single_caption
