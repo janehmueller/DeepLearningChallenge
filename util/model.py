@@ -97,6 +97,7 @@ class Model(object):
 
     def build_word_embedding(self, vocabulary):
         sentence_input = Input(shape=[None])
+        self.vocab_size = len(vocabulary)
 
         if not self.word_vector_init:
             word_embedding = Embedding(
