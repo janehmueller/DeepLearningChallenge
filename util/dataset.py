@@ -9,7 +9,7 @@ Datum = namedtuple('Datum', 'img_filename img_path '
 
 
 class Dataset(object):
-    def __init__(self, dataset_name, single_caption):
+    def __init__(self, dataset_name, single_caption=False):
         self._DATASET_DIR_NAME = fix_for_project_root_path(base_configuration['data_path'])
         self._TRAINING_RESULTS_DIR_NAME = fix_for_project_root_path(base_configuration['tmp_path'])
         self._single_caption = single_caption
