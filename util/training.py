@@ -141,7 +141,7 @@ class Training(object):
 
     def run(self):
         print("Building model..")
-        self.model.build(self.dataset_provider.vocabs)
+        self.model.build(self.dataset_provider.vocabs())
         if self.model_weights_path:
             print("Loading model weights from {}..".format(self.model_weights_path))
             self.keras_model.load_weights(self.model_weights_path)

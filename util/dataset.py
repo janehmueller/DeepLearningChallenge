@@ -1,7 +1,7 @@
 import os
 from collections import namedtuple
 
-from util.config import base_configuration
+from util.config import base_configuration, fix_for_project_root_path
 from util.file_loader import TrainFile
 
 Datum = namedtuple('Datum', 'img_filename img_path '
@@ -9,10 +9,9 @@ Datum = namedtuple('Datum', 'img_filename img_path '
 
 
 class Dataset(object):
-    _DATASET_DIR_NAME = base_configuration['data_path']
-    _TRAINING_RESULTS_DIR_NAME = base_configuration['tmp_path']
-
     def __init__(self, dataset_name, single_caption):
+        self._DATASET_DIR_NAME = fix_for_project_root_path(base_configuration['data_path'])
+        self._TRAINING_RESULTS_DIR_NAME = fix_for_project_root_path(base_configuration['tmp_path'])
         self._single_caption = single_caption
         self._create_dirs()
 

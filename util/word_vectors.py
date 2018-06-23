@@ -29,6 +29,7 @@ class WordVector(object):
         self._embedding_size = self.vector_type_info['embedding_size']
         self._input_file = self.vector_type_info['path']
         self._input_file = path.join(base_configuration['pretrained_models_path'], self._input_file)
+        self._input_file = self._input_file if os.path.isabs(self._input_file) else os.path.join('..', self._input_file)
         self._initializer = initializers.get(initializer)
         self._fetch_data_if_needed()
         self._load_pretrained_vectors()
@@ -50,12 +51,13 @@ class WordVector(object):
             uri_info = self.vector_type_info['uri']
 
             if uri_info['type'] == 'file':
-                print("Downloading {}".format(uri_info['url']))
+                print("Downloading {} to {}".format(uri_info['url'], self._input_file))
                 response = requests.get(uri_info['url'], stream=True)
                 with open(self._input_file, 'wb') as file:
                     shutil.copyfileobj(response.raw, file)
                 del response
             elif uri_info['type'] == 'zip':
+                print("Downloading {} to {}.zip".format(uri_info['url'], self._input_file))
                 zip_file = self._input_file + '.zip'
                 response = requests.get(uri_info['url'], stream=True)
                 with open(zip_file, 'wb') as file:
@@ -72,7 +74,7 @@ class WordVector(object):
             vector = self._word_vector_of.get(word)
             vectors.append(vector)
 
-        num_unknowns = len(filter(lambda x: x is None, vectors))
+        num_unknowns = len(list(filter(lambda x: x is None, vectors)))
         inits = self._initializer(shape=(num_unknowns, self._embedding_size))
         inits = K.get_session().run(inits)
         inits = iter(inits)
@@ -83,11 +85,18 @@ class WordVector(object):
         return np.array(vectors)
 
     def _load_pretrained_vectors_file(self, file_obj):
+        unsupported_lines = []
+
         for line in file_obj:
             tokens = line.split()
-            word = tokens[0]
+            word = " ".join(tokens[:-self._embedding_size])
+            vector = tokens[-self._embedding_size:]
             if word == '.':
-                self._word_vector_of[CaptionPreprocessor.EOS_TOKEN] = np.asarray(tokens[1:], dtype='float32')
+                self._word_vector_of[CaptionPreprocessor.EOS_TOKEN] = np.asarray(vector, dtype='float32')
             elif word in self._vocab_words:
-                self._word_vector_of[word] = np.asarray(tokens[1:], dtype='float32')
+                if len(tokens) <= self._embedding_size:
+                    unsupported_lines.append(line)
+                    continue
+                self._word_vector_of[word] = np.asarray(vector, dtype='float32')
         assert CaptionPreprocessor.EOS_TOKEN in self._word_vector_of
+        assert len(unsupported_lines) <= 0, "{} unsupported lines\n".format(len(unsupported_lines)) + "\n".join(unsupported_lines)

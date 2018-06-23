@@ -45,7 +45,7 @@ class CaptionPreprocessor(object):
     def vocabs(self):
         """
         Returns word index of vocabulary sorted by the ids
-        :return: word index of vocabulary sorted by the idsg
+        :return: word index of vocabulary sorted by the ids
         """
         word_index = self.tokenizer.word_index
         return sorted(word_index, key=word_index.get)
@@ -99,7 +99,7 @@ class CaptionPreprocessor(object):
 
         # The number of timesteps/words the model outputs is maxlen(captions) + 1 because the first "word" is an image
         captions_extended1 = pad_sequences(captions, maxlen=captions.shape[-1] + 1, padding="post")
-        captions_one_hot = map(self.tokenizer.sequences_to_matrix, np.expand_dims(captions_extended1, -1))
+        captions_one_hot = list(map(self.tokenizer.sequences_to_matrix, np.expand_dims(captions_extended1, -1)))
         captions_one_hot = np.array(captions_one_hot, dtype="int")
 
         # Left-shift one-hot encoding by one to set padding to 0 (so that error will be 0.0)
@@ -128,7 +128,7 @@ class CaptionPreprocessor(object):
         return caption_lengths
 
     def fit_on_captions(self, captions_txt):
-        captions_txt = self.handle_rare_words(captions_txt)
+        # captions_txt = self.handle_rare_words(captions_txt)
         captions_txt = self.add_eos(captions_txt)
         self.tokenizer.fit_on_texts(captions_txt)
         self.word_of = {i: w for w, i in self.tokenizer.word_index.items()}

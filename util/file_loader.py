@@ -1,9 +1,12 @@
 import json
+import os
+
+from util.config import fix_for_project_root_path
 
 
 class File:
     def __init__(self, path):
-        self.path = path
+        self.path = fix_for_project_root_path(path)
         self.data = None
         self.preprocess()
 
