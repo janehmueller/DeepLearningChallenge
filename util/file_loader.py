@@ -1,7 +1,7 @@
 import json
 import os
 
-from util.config import fix_for_project_root_path
+from .config import fix_for_project_root_path
 
 
 class File:

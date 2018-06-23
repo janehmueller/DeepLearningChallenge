@@ -10,8 +10,8 @@ import yaml
 from keras.utils import GeneratorEnqueuer
 from time import sleep
 
-from util.metrics import BLEU, METEOR, CIDEr, ROUGE
-from util.model import Model
+from .metrics import BLEU, METEOR, CIDEr, ROUGE
+from .model import Model
 
 
 class BasicInference(object):

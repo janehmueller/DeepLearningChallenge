@@ -6,10 +6,10 @@ from argparse import ArgumentParser
 
 from keras.callbacks import CSVLogger, TensorBoard, ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 
-from util.dataset_provider import DatasetProvider
-from util.model import Model
-from util.config import base_configuration
-from util.callbacks import LogMetrics, LogLearningRate, LogTimestamp, StopAfterTimedelta, StopWhenValLossExploding
+from .dataset_provider import DatasetProvider
+from .model import Model
+from .config import base_configuration
+from .callbacks import LogMetrics, LogLearningRate, LogTimestamp, StopAfterTimedelta, StopWhenValLossExploding
 
 
 class Training(object):

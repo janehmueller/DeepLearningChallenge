@@ -5,8 +5,8 @@ from math import ceil
 from operator import attrgetter
 from itertools import chain
 
-from util.config import base_configuration
-from util.dataset import CocoDataset
+from .config import base_configuration
+from .dataset import CocoDataset
 from .preprocessors import CaptionPreprocessor, ImagePreprocessor
 
 

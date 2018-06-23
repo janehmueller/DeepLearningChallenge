@@ -7,9 +7,9 @@ from keras.layers import BatchNormalization, Dense, RepeatVector, Embedding, GRU
 from keras.optimizers import Adam
 from keras.regularizers import l1_l2
 
-from util.config import base_configuration
-from util.metrics import categorical_crossentropy_from_logits, categorical_accuracy_with_variable_timestep
-from util.word_vectors import WordVector
+from .config import base_configuration
+from .metrics import categorical_crossentropy_from_logits, categorical_accuracy_with_variable_timestep
+from .word_vectors import WordVector
 
 
 class Model(object):

@@ -1,8 +1,8 @@
 import os
 from collections import namedtuple
 
-from util.config import base_configuration, fix_for_project_root_path
-from util.file_loader import TrainFile
+from .config import base_configuration, fix_for_project_root_path
+from .file_loader import TrainFile
 
 Datum = namedtuple('Datum', 'img_filename img_path '
                             'caption_txt all_captions_txt')
