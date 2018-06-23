@@ -68,10 +68,10 @@ class DatasetProvider(object):
     def _build(self):
         training_set = self._dataset.training_set
         if self._single_caption:
-            training_captions = map(attrgetter('all_captions_txt'), training_set)
+            training_captions = (elem.all_captions_txt for elem in training_set)
             training_captions = list(chain.from_iterable(training_captions))
         else:
-            training_captions = map(attrgetter('caption_txt'), training_set)
+            training_captions = (elem.caption_txt for elem in training_set)
         self._caption_preprocessor.fit_on_captions(training_captions)
 
     def _batch_generator(self, datum_list, include_datum=False, random_transform=True):
@@ -90,8 +90,8 @@ class DatasetProvider(object):
                 yield self._preprocess_batch(datum_batch, include_datum, random_transform)
 
     def _preprocess_batch(self, datum_batch, include_datum=False, random_transform=True):
-        imgs_path = map(attrgetter('img_path'), datum_batch)
-        captions_txt = map(attrgetter('caption_txt'), datum_batch)
+        imgs_path = (elem.img_path for elem in datum_batch)
+        captions_txt = (elem.caption_txt for elem in datum_batch)
 
         img_batch = self._image_preprocessor.preprocess_images(imgs_path, random_transform)
         caption_batch = self._caption_preprocessor.encode_captions(captions_txt)
