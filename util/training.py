@@ -129,9 +129,7 @@ class Training(object):
                            stop_after]  # Must be the last
 
     def init_result_dir(self):
-        self.result_dir = os.path.join(
-            self.dataset_provider.training_results_dir,
-            self.training_label)
+        self.result_dir = os.path.join(self.dataset_provider.training_results_dir, self.training_label)
 
         CONFIG_FILENAME = "hyperparams-config.yaml"
         config_filepath = self.path_from_result_dir(CONFIG_FILENAME)
