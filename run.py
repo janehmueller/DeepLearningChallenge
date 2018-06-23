@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument("--training_label")
     parser.add_argument("--training_dir")
     parser.add_argument("--load_model_weights", action="store_true")
-    parser.add_argument("--log_metrics_period")
+    parser.add_argument("--log_metrics_period", default=4)
     parser.add_argument("--unit_test", action="store_true")
     args = parser.parse_args()
     training.main(args.training_label,

@@ -4,7 +4,7 @@ from datetime import datetime
 from keras import backend as K
 from keras.callbacks import Callback
 
-from .inference import BasicInference
+from .inference import BasicInference, BeamSearchInference
 
 
 class LogLearningRate(Callback):
@@ -41,7 +41,8 @@ class LogMetrics(Callback):
     def on_train_begin(self, logs=None):
         # Initialization is here, not in __init__ because in there self.model
         # is not initialized yet
-        self._inference = BasicInference(self.model, self._dataset_provider)
+        # self._inference = BasicInference(self.model, self._dataset_provider)
+        self._inference = BeamSearchInference(self.model, beam_size=3, max_caption_length=20)
         self._old_logs = {}
 
     def on_epoch_end(self, epoch, logs=None):

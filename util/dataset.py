@@ -75,4 +75,4 @@ class Dataset(object):
                 if self._single_caption:
                     break
 
-        return dataset
+        return dataset[:64]
