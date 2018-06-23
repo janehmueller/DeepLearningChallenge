@@ -23,7 +23,7 @@ class Training(object):
                  explode_patience=2,
                  max_q_size=10,
                  workers=1,
-                 verbose=1):
+                 verbose=2):
         self.training_label = training_label
         self.epochs = base_configuration["params"]["epochs"]
         self.time_limit = base_configuration["params"]["time_limit"]

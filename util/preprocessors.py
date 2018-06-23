@@ -23,7 +23,7 @@ class ImagePreprocessor(object):
         return np.array(image_list)
 
     def preprocess_images(self, image_paths, random_transform=True):
-        return map(partial(self.preprocess_image, random_transform=random_transform), image_paths)
+        return list(map(partial(self.preprocess_image, random_transform=random_transform), image_paths))
 
 
 class CaptionPreprocessor(object):
