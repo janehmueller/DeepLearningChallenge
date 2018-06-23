@@ -3,7 +3,6 @@ from os import path
 
 from util import training
 from util.config import base_configuration
-from util.file_loader import TrainFile
 from util.word_vectors import WordVector
 
 import keras
@@ -14,10 +13,6 @@ def main():
     parser.add_argument('--dataPath', dest='data_path', default=base_configuration['data_path'])
 
     args = parser.parse_args()
-
-    file_data = TrainFile(path.join(args.data_path, base_configuration['files']['train']['captions']['path']))
-
-    print(file_data)
 
     WordVector(['one', 'two', 'three'], keras.initializers.RandomUniform(0, 1), 'glove')
 

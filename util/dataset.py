@@ -2,7 +2,7 @@ import os
 from collections import namedtuple
 
 from .config import base_configuration, fix_for_project_root_path
-from .file_loader import TrainFile
+from .file_loader import File
 
 Datum = namedtuple('Datum', 'img_filename img_path '
                             'caption_txt all_captions_txt')
@@ -14,6 +14,21 @@ class Dataset(object):
         self._TRAINING_RESULTS_DIR_NAME = fix_for_project_root_path(base_configuration['tmp_path'])
         self._single_caption = single_caption
         self._create_dirs()
+
+        config_dict =  base_configuration['datasets'][dataset_name]
+        img_train_dir_name = config_dict['train']['train_dir']
+        annotation_train_file = config_dict['train']['train_annotation_file']
+        img_validation_dirname = config_dict['validation']['validation_dir']
+        annotation_validation_file = config_dict['validation']['validation_annotation_file']
+
+        self._IMG_TRAIN_DIRNAME = os.path.join(self._DATASET_DIR_NAME, img_train_dir_name)
+        self._ANNOTATION_TRAIN_FILE = os.path.join(self._DATASET_DIR_NAME, annotation_train_file)
+        self._IMG_VALIDATION_DIRNAME = os.path.join(self._DATASET_DIR_NAME, img_validation_dirname)
+        self._ANNOTATION_VALIDATION_FILE = os.path.join(self._DATASET_DIR_NAME, annotation_validation_file)
+
+        self.FileClass = File.get_class(dataset_name)
+
+        self._build()
 
     @property
     def training_set(self):
@@ -43,22 +58,10 @@ class Dataset(object):
         os.makedirs(self.training_results_dir, exist_ok=True)
 
 
-class CocoDataset(Dataset):
-    DATASET_NAME = 'coco'
-
-    def __init__(self, single_caption=False):
-        super(CocoDataset, self).__init__(self.DATASET_NAME, single_caption)
-        self._IMG_TRAIN_DIRNAME = os.path.join(self._DATASET_DIR_NAME, 'train2014')
-        self._ANNOTATION_TRAIN_FILE = os.path.join(self._DATASET_DIR_NAME, 'annotations/captions_train2014.json')
-        self._IMG_VALIDATION_DIRNAME = os.path.join(self._DATASET_DIR_NAME, 'val2014')
-        self._ANNOTATION_VALIDATION_FILE = os.path.join(self._DATASET_DIR_NAME, 'annotations/captions_val2014.json')
-
-        self._build()
-
     def _build(self):
-        self._train_file = TrainFile(self._ANNOTATION_TRAIN_FILE)
+        self._train_file = self.FileClass(self._ANNOTATION_TRAIN_FILE)
         self._training_set = self._build_set(self._IMG_TRAIN_DIRNAME, self._train_file)
-        self._validation_file = TrainFile(self._ANNOTATION_VALIDATION_FILE)
+        self._validation_file = self.FileClass(self._ANNOTATION_VALIDATION_FILE)
         self._validation_set = self._build_set(self._IMG_VALIDATION_DIRNAME, self._validation_file)
 
     def _build_set(self, img_dir_name, train_file):
