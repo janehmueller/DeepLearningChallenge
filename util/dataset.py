@@ -26,7 +26,7 @@ class Dataset(object):
         self._IMG_VALIDATION_DIRNAME = os.path.join(self._DATASET_DIR_NAME, img_validation_dirname)
         self._ANNOTATION_VALIDATION_FILE = os.path.join(self._DATASET_DIR_NAME, annotation_validation_file)
 
-        self.FileClass = File.get_class(dataset_name)
+        self.FileClass = File.load(dataset_name)
 
         self._build()
 

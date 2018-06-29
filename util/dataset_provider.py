@@ -6,6 +6,7 @@ from operator import attrgetter
 from itertools import chain
 
 from .config import base_configuration
+from .dataset import Dataset
 from .preprocessors import CaptionPreprocessor, ImagePreprocessor
 
 
