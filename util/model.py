@@ -132,26 +132,32 @@ class Model(object):
         return sentence_input, word_embedding_print
 
     def build_rnn_model(self, sequence_input):
-        RNN = GRU if self.rnn_type == "gru" else LSTM
-
-        def rnn():
-            rnn = RNN(
-                units=self.rnn_output_size,
-                return_sequences=True,
-                dropout=self.dropout_rate,
-                recurrent_dropout=self.dropout_rate,
-                kernel_regularizer=self.regularizer,
-                kernel_initializer=self.initializer,
-                implementation=2
-            )
-            if self.bidirectional_rnn:
-                rnn = Bidirectional(rnn)
-            return rnn
+        # RNN = GRU if self.rnn_type == "gru" else LSTM
+        #
+        # def rnn():
+        #     rnn = RNN(
+        #         units=self.rnn_output_size,
+        #         return_sequences=True,
+        #         dropout=self.dropout_rate,
+        #         recurrent_dropout=self.dropout_rate,
+        #         kernel_regularizer=self.regularizer,
+        #         kernel_initializer=self.initializer,
+        #         implementation=2
+        #     )
+        #     if self.bidirectional_rnn:
+        #         rnn = Bidirectional(rnn)
+        #     return rnn
 
         layer_input = sequence_input
         for _ in range(0, self.rnn_layers):
             layer_input = BatchNormalization(axis=-1)(layer_input)
-            rnn_output = rnn()(layer_input)
+            # rnn_output = rnn()(layer_input)
+            rnn_output = LSTM(
+                units=self.rnn_output_size,
+                return_sequences=True,
+                dropout=self.dropout_rate,
+                recurrent_dropout=self.dropout_rate
+            )(layer_input)
             layer_input = rnn_output
 
         dense_time_distributed_layer = TimeDistributed(Dense(units=self.vocab_size))(rnn_output)
