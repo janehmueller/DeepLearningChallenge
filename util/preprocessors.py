@@ -6,14 +6,23 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from keras.preprocessing.image import img_to_array, load_img
 from keras.applications import inception_v3
+from PIL import Image
 import numpy as np
+
+from .config import base_configuration
 
 
 class ImagePreprocessor(object):
     IMAGE_SIZE = (299, 299)  # Inceptionv3 input size
 
+    def __init__(self):
+        self.pad_images = base_configuration['params']['pad_images']
+
     def preprocess_image(self, path):
-        image = load_img(path, target_size=self.IMAGE_SIZE)
+        if self.pad_images:
+            image = self.pad_image(load_img(path), self.IMAGE_SIZE)
+        else:
+            image = load_img(path, target_size=self.IMAGE_SIZE)
         image_array = img_to_array(image)
         image_array = inception_v3.preprocess_input(image_array)
         return image_array
@@ -24,6 +33,19 @@ class ImagePreprocessor(object):
     def preprocess_images(self, image_paths):
         # return [partial(self.preprocess_image)(path) for path in image_paths]
         return list(map(partial(self.preprocess_image), image_paths))
+
+    def pad_image(self, img, padded_size):
+        width, height = img.size
+        if width > height:
+            new_size = (padded_size[0], round(height * padded_size[0] / width))
+        else:
+            new_size = (round(width * padded_size[1] / height), padded_size[1])
+        img = img.resize(new_size)
+
+        padded_img = Image.new('RGB', self.IMAGE_SIZE)
+        topleft = ((padded_size[0] - new_size[0]) // 2, (padded_size[1] - new_size[1]) // 2)
+        padded_img.paste(img, topleft)
+        return padded_img
 
 
 class CaptionPreprocessor(object):
