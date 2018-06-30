@@ -52,6 +52,7 @@
     "l2_reg": 0.0,
     "learning_rate": 0.0005050182149478269,
     "lemmatize_caption": false,
+    "pad_images": false,
     "reduce_lr_factor": 0.3,
     "reduce_lr_patience": 3,
     "rnn_layers": 3,
