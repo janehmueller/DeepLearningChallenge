@@ -112,12 +112,14 @@ class Model(object):
         sentence_input_print = Lambda(self.lambda_print_layer("Sentence Input output: "))(sentence_input)
 
         if not self.word_vector_init:
+            print("Not using word vector init")
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
                 output_dim=self.embedding_size,
                 embeddings_regularizer=self.regularizer
             )(sentence_input_print)
         else:
+            print("Using word vector init")
             word_vector = WordVector(vocabulary, self.initializer, self.word_vector_init)
             embedding_weights = word_vector.vectorize_words(vocabulary)
             word_embedding = Embedding(
