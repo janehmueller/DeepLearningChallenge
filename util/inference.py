@@ -27,7 +27,8 @@ class BasicInference(object):
         self._model = keras_model
         self._dataset_provider = dataset_provider
         self._preprocessor = dataset_provider.caption_preprocessor
-        self._metrics = [BLEU(4), METEOR(), CIDEr(), ROUGE()]
+        # self._metrics = [BLEU(4), METEOR(), CIDEr(), ROUGE()]
+        self._metrics = [METEOR(), CIDEr(), ROUGE()]
 
     def predict_training_set(self, include_datum=True):
         return self._predict(self._dataset_provider.training_set, self._dataset_provider.training_steps, include_datum)
@@ -78,7 +79,7 @@ class BasicInference(object):
 
     def _predict_batch(self, X, y):
         captions_pred = self._model.predict_on_batch(X)
-        captions_pred_str = self._preprocessor.decode_captions(captions_output=captions_pred, captions_output_expected=y)
+        captions_pred_str = self._preprocessor.decode_captions(captions_pred, expected_captions=y)
         return captions_pred_str
 
     def _evaluate(self, caption_datum_pairs, include_prediction=False):

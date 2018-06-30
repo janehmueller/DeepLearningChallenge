@@ -4,6 +4,9 @@
 
 data
 !data/.gitkeep
+tmp
+
+config.local.json
 
 ## File-based project format:
 *.iws

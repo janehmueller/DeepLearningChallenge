@@ -31,3 +31,5 @@ if __name__ == '__main__':
          load_model_weights=args.load_model_weights,
          log_metrics_period=args.log_metrics_period,
          unit_test=args.unit_test)
+
+# scp cps4@172.20.8.173:/data/dl_lecture_data/TrainVal/train2014.zip .

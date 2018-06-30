@@ -83,7 +83,7 @@ class CaptionPreprocessor(object):
         decoded_labels = captions.argmax(axis=-1)  # Returns indices of highest value in array (which is the number that was one-hot encoded)
         num_batches, num_words = decoded_labels.shape
 
-        if expected_captions:
+        if expected_captions is not None:
             captions_length = self.captions_length(expected_captions)
         else:
             captions_length = [num_words] * num_batches  # Placeholder with which we read all words
@@ -93,8 +93,12 @@ class CaptionPreprocessor(object):
             caption_string = []
             for word_index in range(0, captions_length[caption_index]):
                 label = decoded_labels[caption_index, word_index]
-                # label += 1
-                caption_string.append(self.word_dictionary[label])
+                # print(decoded_labels)
+                # print("WORDS")
+                # print("\n".join(self.word_dictionary))
+                label += 1
+                # caption_string.append(self.word_dictionary[label])
+                caption_string.append(self.word_dictionary.get(label, "BROKEN"))
             decoded_captions.append(' '.join(caption_string))
 
         return decoded_captions

@@ -60,6 +60,8 @@ class Score(object):
     def calculate(self, id_to_prediction, id_to_references):
         # id_to_prediciton_list = dict(((k, [v]) for k, v in id_to_prediction.items()))
         id_to_prediciton_list = dict(map(lambda kv: (kv[0], [kv[1]]), id_to_prediction.items()))
+        for key in id_to_references:
+            id_to_references[key] = list(id_to_references[key])
         average_score, scores = self.implementation.compute_score(id_to_references, id_to_prediciton_list)
         if isinstance(average_score, (list, tuple)):
             # average_score = (float(score) for score in average_score)
