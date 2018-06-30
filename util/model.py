@@ -66,14 +66,8 @@ class Model(object):
         image_input, image_embedding = self.build_image_embedding()
         sentence_input, word_embedding = self.build_word_embedding(vocabulary)
 
-        def print_results(tensor):
-            return tf.Print(tensor, [tensor], "Image Embedding output: ")
-
-        def print_results2(tensor):
-            return tf.Print(tensor, [tensor], "Word Embedding output: ")
-
-        image_embedding_print = Lambda(print_results)(image_embedding)
-        word_embedding_print = Lambda(print_results2)(word_embedding)
+        image_embedding_print = Lambda(self.lambda_print_layer("Image Embedding output: "))(image_embedding)
+        word_embedding_print = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
 
         rnn_input = Concatenate(axis=1)([image_embedding_print, word_embedding_print])
         rnn_output = self.build_rnn_model(rnn_input)
@@ -85,6 +79,11 @@ class Model(object):
             metrics=[categorical_accuracy_with_variable_timestep]
         )
         self.keras_model = model
+
+    def lambda_print_layer(self, message):
+        def print_results(tensor):
+            return tf.Print(tensor, [tensor], message)
+        return print_results
 
     def build_image_embedding(self):
         # Initialize with imagenet weights
