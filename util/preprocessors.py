@@ -23,7 +23,8 @@ class ImagePreprocessor(object):
         return np.array(image_list)
 
     def preprocess_images(self, image_paths, random_transform=True):
-        return [partial(self.preprocess_image, random_transform=random_transform)(path) for path in image_paths]
+        # return [partial(self.preprocess_image, random_transform=random_transform)(path) for path in image_paths]
+        return list(map(partial(self.preprocess_image, random_transform=random_transform), image_paths))
 
 
 class CaptionPreprocessor(object):
@@ -59,7 +60,8 @@ class CaptionPreprocessor(object):
         return len(self.tokenizer.word_index)
 
     def add_eos(self, captions: Iterable):
-        return (caption + ' ' + self.EOS_TOKEN for caption in captions)
+        # return (caption + ' ' + self.EOS_TOKEN for caption in captions)
+        return map(lambda x: x + ' ' + self.EOS_TOKEN, captions)
 
     def preprocess_captions(self, captions: List[str]):
         # TODO: handle rare words
@@ -103,7 +105,8 @@ class CaptionPreprocessor(object):
 
         # The number of timesteps/words the model outputs is maxlen(captions) + 1 because the first "word" is an image
         captions_extended1 = pad_sequences(captions, maxlen=captions.shape[-1] + 1, padding="post")
-        captions_one_hot = [self.tokenizer.sequences_to_matrix(seq) for seq in np.expand_dims(captions_extended1, -1)]
+        # captions_one_hot = [self.tokenizer.sequences_to_matrix(seq) for seq in np.expand_dims(captions_extended1, -1)]
+        captions_one_hot = list(map(self.tokenizer.sequences_to_matrix, np.expand_dims(captions_extended1, -1)))
         captions_one_hot = np.array(captions_one_hot, dtype="int")
 
         # Left-shift one-hot encoding by one to set padding to 0 (so that error will be 0.0)
@@ -117,8 +120,10 @@ class CaptionPreprocessor(object):
         return captions_input, captions_output
 
     def normalize_captions(self, captions: List[str]):
-        word_sequences = (text_to_word_sequence(elem) for elem in self.add_eos(captions))
-        return (' '.join(caption) for caption in word_sequences)
+        # word_sequences = (text_to_word_sequence(elem) for elem in self.add_eos(captions))
+        word_sequences = map(text_to_word_sequence, self.add_eos(captions))
+        # return (' '.join(caption) for caption in word_sequences)
+        return map(' '.join, word_sequences)
 
     def captions_length(self, captions):
         """
