@@ -96,9 +96,10 @@ class Model(object):
         dense_input = BatchNormalization(axis=-1)(image_model.output)
         dense_input_print = Lambda(self.lambda_print_layer("Batch Normalization output: "))(dense_input)
         dense_image = Dense(
-            units=self.embedding_size,
-            kernel_regularizer=self.regularizer,
-            kernel_initializer=self.initializer)(dense_input_print)
+            units=self.embedding_size
+            # kernel_regularizer=self.regularizer,
+            # kernel_initializer=self.initializer
+        )(dense_input_print)
         dense_image_print = Lambda(self.lambda_print_layer("Dense Image output: "))(dense_image)
         # Add timestep dimension to fit the RNN dimensions
         image_embedding = RepeatVector(1)(dense_image_print)
@@ -115,8 +116,8 @@ class Model(object):
             print("Not using word vector init")
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
-                output_dim=self.embedding_size,
-                embeddings_regularizer=self.regularizer
+                output_dim=self.embedding_size
+                # embeddings_regularizer=self.regularizer
             )(sentence_input_print)
         else:
             print("Using word vector init")
@@ -125,7 +126,7 @@ class Model(object):
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
                 output_dim=self.embedding_size,
-                embeddings_regularizer=self.regularizer,
+                # embeddings_regularizer=self.regularizer,
                 weights=[embedding_weights]
             )(sentence_input_print)
         word_embedding_print = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
