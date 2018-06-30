@@ -2,15 +2,21 @@
   "data_path": "/data/dl_lecture_data/TrainVal",
   "tmp_path": "tmp",
   "pretrained_models_path": "data/pretrained",
+
+  "datasets": {
+    "coco" : {
+      "train":{
+        "train_dir" : "train2014",
+        "train_annotation_file" : "annotations/captions_train2014.json"
+      },
+      "validation":{
+        "validation_dir" : "val2014",
+        "validation_annotation_file" : "annotations/captions_val2014.json"
+      }
+    }
+  },
+
   "files": {
-    "train": {
-    	"captions": {
-    		"path": "captions_train2014.json"
-    	},
-    	"instances": {
-    		"path": "instances_train2014.json"
-    	}
-     },
     "pretrained": {
       "word_vectors": {
         "fasttext": {

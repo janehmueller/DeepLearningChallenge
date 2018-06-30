@@ -10,7 +10,7 @@ import yaml
 from keras.utils import GeneratorEnqueuer
 from time import sleep
 
-from .dataset_provider import DatasetProvider
+from util.dataset_provider import DatasetProvider
 from .metrics import BLEU, METEOR, CIDEr, ROUGE
 from .model import Model
 
@@ -47,7 +47,7 @@ class BasicInference(object):
     def evaluate_test_set(self, include_prediction=False):
         return self._evaluate(self.predict_test_set(include_datum=True), include_prediction=include_prediction)
 
-    def _predict(self, data_generator_function, steps_per_epoch, include_datum=True):
+    def _predict(self, data_generator_function, steps_per_epoch, include_datum=False):
         data_generator = data_generator_function(include_datum=True)
         enqueuer = GeneratorEnqueuer(data_generator)
         enqueuer.start(workers=self._WORKERS, max_queue_size=self._MAX_Q_SIZE)
@@ -63,7 +63,8 @@ class BasicInference(object):
                 else:
                     sleep(self._WAIT_TIME)
 
-            x, y, datum_batch = generator_output
+            x, y, datum_batch = generator_output[1]
+
             captions_pred_str = self._predict_batch(x, y)
             caption_results += captions_pred_str
             datum_results += datum_batch

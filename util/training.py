@@ -117,16 +117,18 @@ class Training(object):
 
         # TODO Add LearningRateScheduler. Is it still needed?
 
-        self.callbacks = [log_lr,  # Must be before tensorboard
-                           log_metrics,  # Must be before model_checkpoint and, tensorboard
-                           model_checkpoint,
-                           tensorboard,  # Must be before log_ts
-                           log_ts,  # Must be before csv_logger
-                           csv_logger,
-                           reduce_lr,  # Must be after csv_logger
-                           stop_when,  # Must be the third last
-                           earling_stopping,  # Must be the second last
-                           stop_after]  # Must be the last
+        self.callbacks = [
+            log_lr,  # Must be before tensorboard
+            log_metrics,  # Must be before model_checkpoint and, tensorboard
+            model_checkpoint,
+            tensorboard,  # Must be before log_ts
+            log_ts,  # Must be before csv_logger
+            csv_logger,
+            reduce_lr,  # Must be after csv_logger
+            stop_when,  # Must be the third last
+            earling_stopping,  # Must be the second last
+            stop_after,  # Must be the last
+        ]
 
     def init_result_dir(self):
         self.result_dir = os.path.join(self.dataset_provider.training_results_dir, self.training_label)
