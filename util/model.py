@@ -94,13 +94,14 @@ class Model(object):
             layer.trainable = False
 
         dense_input = BatchNormalization(axis=-1)(image_model.output)
+        dense_input_print = Lambda(self.lambda_print_layer("Batch Normalization output: "))(dense_input)
         dense_image = Dense(
             units=self.embedding_size,
             kernel_regularizer=self.regularizer,
-            kernel_initializer=self.initializer)(dense_input)
-
+            kernel_initializer=self.initializer)(dense_input_print)
+        dense_image_print = Lambda(self.lambda_print_layer("Dense Image output: "))(dense_image)
         # Add timestep dimension to fit the RNN dimensions
-        image_embedding = RepeatVector(1)(dense_image)
+        image_embedding = RepeatVector(1)(dense_image_print)
 
         image_input = image_model.input
         return image_input, image_embedding
@@ -108,13 +109,14 @@ class Model(object):
     def build_word_embedding(self, vocabulary):
         sentence_input = Input(shape=[None])
         self.vocab_size = len(vocabulary)
+        sentence_input_print = Lambda(self.lambda_print_layer("Sentence Input output: "))(sentence_input)
 
         if not self.word_vector_init:
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
                 output_dim=self.embedding_size,
                 embeddings_regularizer=self.regularizer
-            )(sentence_input)
+            )(sentence_input_print)
         else:
             word_vector = WordVector(vocabulary, self.initializer, self.word_vector_init)
             embedding_weights = word_vector.vectorize_words(vocabulary)
@@ -123,8 +125,9 @@ class Model(object):
                 output_dim=self.embedding_size,
                 embeddings_regularizer=self.regularizer,
                 weights=[embedding_weights]
-            )(sentence_input)
-        return sentence_input, word_embedding
+            )(sentence_input_print)
+        word_embedding_print = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
+        return sentence_input, word_embedding_print
 
     def build_rnn_model(self, sequence_input):
         RNN = GRU if self.rnn_type == "gru" else LSTM
