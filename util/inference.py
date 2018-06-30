@@ -10,6 +10,7 @@ import yaml
 from keras.utils import GeneratorEnqueuer
 from time import sleep
 
+from .dataset_provider import DatasetProvider
 from .metrics import BLEU, METEOR, CIDEr, ROUGE
 from .model import Model
 
