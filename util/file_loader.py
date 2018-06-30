@@ -47,9 +47,11 @@ class CocoFile(File):
     def captions(self):
         return [annotation['caption'] for annotation in self.data['annotations']]
 
+
 class Flickr30kFile(File):
+
     def __init__(self, path):
-        super(CocoFile, self).__init__(path)
+        super(Flickr30kFile, self).__init__(path)
         self._id_file_map = {}
         self._id_caption_map = {}
         self.preprocess()
@@ -75,7 +77,8 @@ class Flickr30kFile(File):
     def id_caption_map(self):
         return self._id_caption_map
 
+
 class_dict = {
-    "coco" : CocoFile,
-    "flickr30k" : Flickr30kFile
+    "coco": CocoFile,
+    "flickr30k": Flickr30kFile
 }

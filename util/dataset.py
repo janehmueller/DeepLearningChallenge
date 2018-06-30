@@ -4,8 +4,7 @@ from collections import namedtuple
 from .config import base_configuration, fix_for_project_root_path
 from .file_loader import File
 
-Datum = namedtuple('Datum', 'img_filename img_path '
-                            'caption_txt all_captions_txt')
+Datum = namedtuple('Datum', 'img_filename img_path caption_txt all_captions_txt')
 
 
 class Dataset(object):
@@ -15,7 +14,7 @@ class Dataset(object):
         self._single_caption = single_caption
         self._create_dirs()
 
-        config_dict =  base_configuration['datasets'][dataset_name]
+        config_dict = base_configuration['datasets'][dataset_name]
         img_train_dir_name = config_dict['train']['train_dir']
         annotation_train_file = config_dict['train']['train_annotation_file']
         img_validation_dirname = config_dict['validation']['validation_dir']
@@ -57,7 +56,6 @@ class Dataset(object):
     def _create_dirs(self):
         os.makedirs(self.training_results_dir, exist_ok=True)
 
-
     def _build(self):
         self._train_file = self.FileClass(self._ANNOTATION_TRAIN_FILE)
         self._training_set = self._build_set(self._IMG_TRAIN_DIRNAME, self._train_file)
@@ -66,7 +64,7 @@ class Dataset(object):
 
     def _build_set(self, img_dir_name, train_file):
         dataset = []
-        for imageId, image_file_name in train_file.id_file_map.items():
+        for imageId, image_file_name in train_file.id_file_map.items()[:1000]:
             for caption in train_file.id_caption_map[imageId]:
                 dataset.append(Datum(img_filename=image_file_name,
                                      img_path=os.path.join(img_dir_name, image_file_name),
@@ -75,4 +73,4 @@ class Dataset(object):
                 if self._single_caption:
                     break
 
-        return dataset[:64]
+        return dataset
