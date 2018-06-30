@@ -12,8 +12,7 @@ import numpy as np
 class ImagePreprocessor(object):
     IMAGE_SIZE = (299, 299)  # Inceptionv3 input size
 
-    def preprocess_image(self, path, random_transform=True):
-        # TODO handle random transform
+    def preprocess_image(self, path):
         image = load_img(path, target_size=self.IMAGE_SIZE)
         image_array = img_to_array(image)
         image_array = inception_v3.preprocess_input(image_array)
@@ -22,9 +21,9 @@ class ImagePreprocessor(object):
     def preprocess_batch(self, image_list):
         return np.array(image_list)
 
-    def preprocess_images(self, image_paths, random_transform=True):
-        # return [partial(self.preprocess_image, random_transform=random_transform)(path) for path in image_paths]
-        return list(map(partial(self.preprocess_image, random_transform=random_transform), image_paths))
+    def preprocess_images(self, image_paths):
+        # return [partial(self.preprocess_image)(path) for path in image_paths]
+        return list(map(partial(self.preprocess_image), image_paths))
 
 
 class CaptionPreprocessor(object):
