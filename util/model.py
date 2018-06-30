@@ -1,9 +1,10 @@
+import tensorflow as tf
 from keras import Input
 from keras.models import Model as KerasModel
 from keras.applications import InceptionV3
 from keras.initializers import RandomUniform
 from keras.layers import BatchNormalization, Dense, RepeatVector, Embedding, GRU, LSTM, Bidirectional, TimeDistributed, \
-    Concatenate
+    Concatenate, Lambda
 from keras.optimizers import Adam
 from keras.regularizers import l1_l2
 
@@ -64,7 +65,17 @@ class Model(object):
         # if not vocabulary and self.word_vector_init:
         image_input, image_embedding = self.build_image_embedding()
         sentence_input, word_embedding = self.build_word_embedding(vocabulary)
-        rnn_input = Concatenate(axis=1)([image_embedding, word_embedding])
+
+        def print_results(tensor):
+            return tf.Print(tensor, [tensor], "Image Embedding output: ")
+
+        def print_results2(tensor):
+            return tf.Print(tensor, [tensor], "Word Embedding output: ")
+
+        image_embedding_print = Lambda(print_results)(image_embedding)
+        word_embedding_print = Lambda(print_results2)(word_embedding)
+
+        rnn_input = Concatenate(axis=1)([image_embedding_print, word_embedding_print])
         rnn_output = self.build_rnn_model(rnn_input)
 
         model = KerasModel(inputs=[image_input, sentence_input], outputs=rnn_output)

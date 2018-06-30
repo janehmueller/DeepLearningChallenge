@@ -49,7 +49,6 @@ class CocoFile(File):
 
 
 class Flickr30kFile(File):
-
     def __init__(self, path):
         super(Flickr30kFile, self).__init__(path)
         self._id_file_map = {}

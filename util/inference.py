@@ -27,8 +27,7 @@ class BasicInference(object):
         self._model = keras_model
         self._dataset_provider = dataset_provider
         self._preprocessor = dataset_provider.caption_preprocessor
-        # self._metrics = [BLEU(4), METEOR(), CIDEr(), ROUGE()]
-        self._metrics = [METEOR(), CIDEr(), ROUGE()]
+        self._metrics = [BLEU(4), METEOR(), CIDEr(), ROUGE()]
 
     def predict_training_set(self, include_datum=True):
         return self._predict(self._dataset_provider.training_set, self._dataset_provider.training_steps, include_datum)
