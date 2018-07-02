@@ -44,8 +44,7 @@ class Training(object):
         self.verbose = verbose
 
         if not ((self.epochs is None) ^ (self.time_limit is None)):
-            raise ValueError("Either conf.epochs or conf.time_limit must be "
-                             "set, but not both!")
+            raise ValueError("Either conf.epochs or conf.time_limit must be set, but not both!")
 
         if self.time_limit:
             self.epochs = sys.maxsize
@@ -85,8 +84,7 @@ class Training(object):
         csv_logger = CSVLogger(filename=self.csv_filepath)
 
         CHECKPOINT_FILENAME = 'model-weights.hdf5'
-        self.checkpoint_filepath = self.path_from_result_dir(
-                                                        CHECKPOINT_FILENAME)
+        self.checkpoint_filepath = self.path_from_result_dir(CHECKPOINT_FILENAME)
         model_checkpoint = ModelCheckpoint(filepath=self.checkpoint_filepath,
                                            monitor='val_cider',
                                            mode='max',
@@ -144,11 +142,11 @@ class Training(object):
 
         os.makedirs(self.result_dir, exist_ok=True)
 
-    def run(self):
-        #sess = K.get_session()
-
-        #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
-        #K.set_session(sess)
+    def run(self, debug=False):
+        if debug:
+            sess = K.get_session()
+            sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+            K.set_session(sess)
 
         print("Building model..")
         self.model.build(self.dataset_provider.vocabs())
@@ -223,7 +221,8 @@ def main(training_label,
          training_dir=None,
          load_model_weights=False,
          log_metrics_period=4,
-         unit_test=False):
+         unit_test=False,
+         debug=False):
     model_weights_path = os.path.join(training_dir, 'model-weights.hdf5')
     model_weights_path = model_weights_path if load_model_weights else None
     if training_dir:
@@ -244,7 +243,7 @@ def main(training_label,
             traceback.print_exc(file=sys.stderr)
     signal.signal(signal.SIGINT, handler)
 
-    training.run()
+    training.run(debug)
 
     if unit_test:
         return training

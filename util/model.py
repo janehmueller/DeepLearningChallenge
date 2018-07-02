@@ -44,7 +44,7 @@ class Model(object):
 
         self.bidirectional_rnn = bidirectional_rnn or base_configuration["params"]["bidirectional_rnn"]
 
-        self.regularizer = l1_l2(l1_reg, l2_reg)
+        self.regularizer = l1_l2()  # (l1_reg, l2_reg)
 
         if self.vocab_size is None:
             raise ValueError('config.active_config().vocab_size cannot be None! You should check your config or you can'
@@ -66,11 +66,18 @@ class Model(object):
         image_input, image_embedding = self.build_image_embedding()
         sentence_input, word_embedding = self.build_word_embedding(vocabulary)
 
-        image_embedding_print = Lambda(self.lambda_print_layer("Image Embedding output: "))(image_embedding)
-        word_embedding_print = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
+        if base_configuration['print_layer_outputs']:
+            image_embedding = Lambda(self.lambda_print_layer("Image Embedding output: "))(image_embedding)
+            word_embedding = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
 
-        rnn_input = Concatenate(axis=1)([image_embedding_print, word_embedding_print])
+        rnn_input = Concatenate(axis=1)([image_embedding, word_embedding])
+
+        if base_configuration['print_layer_outputs']:
+            rnn_input = Lambda(self.lambda_print_layer("RNN input output: "))(rnn_input)
+
         rnn_output = self.build_rnn_model(rnn_input)
+        if base_configuration['print_layer_outputs']:
+            rnn_output = Lambda(self.lambda_print_layer("RNN output output: "))(rnn_output)
 
         model = KerasModel(inputs=[image_input, sentence_input], outputs=rnn_output)
         print('LEARNING_RATE: {}'.format(self.learning_rate))
@@ -96,15 +103,21 @@ class Model(object):
             layer.trainable = False
 
         dense_input = BatchNormalization(axis=-1)(image_model.output)
-        dense_input_print = Lambda(self.lambda_print_layer("Batch Normalization output: "))(dense_input)
+        if base_configuration['print_layer_outputs']:
+            dense_input = Lambda(self.lambda_print_layer("Batch Normalization output: "))(dense_input)
+
+        # TODO: regularizer and initializer
+        # kernel_regularizer=self.regularizer,
+        # kernel_initializer=self.initializer
         dense_image = Dense(
             units=self.embedding_size
-            # kernel_regularizer=self.regularizer,
-            # kernel_initializer=self.initializer
-        )(dense_input_print)
-        dense_image_print = Lambda(self.lambda_print_layer("Dense Image output: "))(dense_image)
+        )(dense_input)
+
+        if base_configuration['print_layer_outputs']:
+            dense_image = Lambda(self.lambda_print_layer("Dense Image output: "))(dense_image)
+
         # Add timestep dimension to fit the RNN dimensions
-        image_embedding = RepeatVector(1)(dense_image_print)
+        image_embedding = RepeatVector(1)(dense_image)
 
         image_input = image_model.input
         return image_input, image_embedding
@@ -112,49 +125,57 @@ class Model(object):
     def build_word_embedding(self, vocabulary):
         sentence_input = Input(shape=[None])
         self.vocab_size = len(vocabulary)
-        sentence_input_print = Lambda(self.lambda_print_layer("Sentence Input output: "))(sentence_input)
+        if base_configuration['print_layer_outputs']:
+            sentence_input = Lambda(self.lambda_print_layer("Sentence Input output: "))(sentence_input)
 
         if not self.word_vector_init:
-            print("Not using word vector init")
+            print("Not using word vector init...")
+            # TODO: regularizer
+            # embeddings_regularizer=self.regularizer,
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
                 output_dim=self.embedding_size
-                # embeddings_regularizer=self.regularizer
-            )(sentence_input_print)
+            )(sentence_input)
         else:
-            print("Using word vector init")
+            print("Using word vector init...")
             word_vector = WordVector(vocabulary, self.initializer, self.word_vector_init)
             embedding_weights = word_vector.vectorize_words(vocabulary)
+            # TODO: regularizer
+            # embeddings_regularizer=self.regularizer,
             word_embedding = Embedding(
                 input_dim=self.vocab_size,
                 output_dim=self.embedding_size,
-                # embeddings_regularizer=self.regularizer,
                 weights=[embedding_weights]
-            )(sentence_input_print)
-        word_embedding_print = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
-        return sentence_input, word_embedding_print
+            )(sentence_input)
+
+        if base_configuration['print_layer_outputs']:
+            word_embedding = Lambda(self.lambda_print_layer("Word Embedding output: "))(word_embedding)
+        return sentence_input, word_embedding
+
+    def rnn(self):
+        RNN = GRU if self.rnn_type == "gru" else LSTM
+        # TODO: regularizer and initializer
+        # kernel_regularizer=self.regularizer,
+        # kernel_initializer=self.initializer
+        rnn = RNN(
+            units=self.rnn_output_size,
+            return_sequences=True,
+            dropout=self.dropout_rate,
+            recurrent_dropout=self.dropout_rate,
+            implementation=2
+        )
+        if self.bidirectional_rnn:
+            rnn = Bidirectional(rnn)
+        return rnn
 
     def build_rnn_model(self, sequence_input):
-        # RNN = GRU if self.rnn_type == "gru" else LSTM
-        #
-        # def rnn():
-        #     rnn = RNN(
-        #         units=self.rnn_output_size,
-        #         return_sequences=True,
-        #         dropout=self.dropout_rate,
-        #         recurrent_dropout=self.dropout_rate,
-        #         kernel_regularizer=self.regularizer,
-        #         kernel_initializer=self.initializer,
-        #         implementation=2
-        #     )
-        #     if self.bidirectional_rnn:
-        #         rnn = Bidirectional(rnn)
-        #     return rnn
-
         layer_input = sequence_input
         for _ in range(0, self.rnn_layers):
             layer_input = BatchNormalization(axis=-1)(layer_input)
-            # rnn_output = rnn()(layer_input)
+            # rnn_output = self.rnn()(layer_input)
+            # TODO: regularizer and initializer
+            # kernel_regularizer=self.regularizer,
+            # kernel_initializer=self.initializer
             rnn_output = LSTM(
                 units=self.rnn_output_size,
                 return_sequences=True,

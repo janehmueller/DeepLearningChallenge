@@ -9,6 +9,7 @@ from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.meteor import meteor
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
+from util.config import base_configuration
 
 
 def categorical_crossentropy_from_logits(y_true, y_pred):
@@ -23,11 +24,13 @@ def categorical_crossentropy_from_logits(y_true, y_pred):
     y_true = y_true[:, :-1, :]
     y_pred = y_pred[:, :-1, :]
 
-    y_true = tensorflow.Print(y_true, [y_true], 'Y_TRUE: ')
-    y_pred = tensorflow.Print(y_pred, [y_pred], 'Y_PRED: ')
+    if base_configuration['print_layer_outputs']:
+        y_true = tensorflow.Print(y_true, [y_true], 'Y_TRUE: ')
+        y_pred = tensorflow.Print(y_pred, [y_pred], 'Y_PRED: ')
 
     loss = softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred)
-    loss = tensorflow.Print(loss, [loss], 'LOSS: ')
+    if base_configuration['print_layer_outputs']:
+        loss = tensorflow.Print(loss, [loss], 'LOSS: ')
 
     return loss
 

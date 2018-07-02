@@ -25,11 +25,14 @@ if __name__ == '__main__':
     parser.add_argument("--load_model_weights", action="store_true")
     parser.add_argument("--log_metrics_period", default=4)
     parser.add_argument("--unit_test", action="store_true")
+    parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
-    training.main(args.training_label,
-         training_dir=args.training_dir,
-         load_model_weights=args.load_model_weights,
-         log_metrics_period=args.log_metrics_period,
-         unit_test=args.unit_test)
+    training.main(
+        args.training_label,
+        training_dir=args.training_dir,
+        load_model_weights=args.load_model_weights,
+        log_metrics_period=args.log_metrics_period,
+        unit_test=args.unit_test,
+        debug=args.debug)
 
 # scp cps4@172.20.8.173:/data/dl_lecture_data/TrainVal/train2014.zip .

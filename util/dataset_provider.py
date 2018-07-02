@@ -77,8 +77,7 @@ class DatasetProvider(object):
         self._caption_preprocessor.fit_on_captions(training_captions)
 
     def _batch_generator(self, datum_list, include_datum=False):
-        # TODO Make it thread-safe. Currently only suitable for workers=1 in
-        # fit_generator.
+        # TODO Make it thread-safe. Currently only suitable for workers=1 in fit_generator.
         datum_list = copy(datum_list)
         while True:
             np.random.shuffle(datum_list)
