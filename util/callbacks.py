@@ -27,9 +27,12 @@ class LogTimestamp(Callback):
                 self._value = value
 
             def __str__(self):
-                return self._value
+                return str(self._value)
 
-        return NotIterableStr(datetime.utcnow().isoformat(' '))
+            def item(self):
+                return float(self._value)
+
+        return NotIterableStr(datetime.utcnow().timestamp())
 
 
 class LogMetrics(Callback):
@@ -55,7 +58,6 @@ class LogMetrics(Callback):
                          in self._inference.evaluate_training_set().items()})
         new_logs.update({'val_' + k: np.float32(v) for k, v
                          in self._inference.evaluate_validation_set().items()})
-        logs.update(new_logs=None)
         self._old_logs = new_logs
 
 

@@ -5,7 +5,7 @@ from keras.applications import InceptionV3
 from keras.initializers import RandomUniform
 from keras.layers import BatchNormalization, Dense, RepeatVector, Embedding, GRU, LSTM, Bidirectional, TimeDistributed, \
     Concatenate, Lambda
-from keras.optimizers import Adam
+from keras.optimizers import Adam, SGD
 from keras.regularizers import l1_l2
 
 from .config import base_configuration
@@ -73,8 +73,10 @@ class Model(object):
         rnn_output = self.build_rnn_model(rnn_input)
 
         model = KerasModel(inputs=[image_input, sentence_input], outputs=rnn_output)
+        print('LEARNING_RATE: {}'.format(self.learning_rate))
         model.compile(
-            optimizer=Adam(lr=self.learning_rate, clipnorm=5.0),  # Gradients will be clipped when L2 norm exceeds value
+            #optimizer=Adam(lr=self.learning_rate, clipnorm=5.0),  # Gradients will be clipped when L2 norm exceeds value
+            optimizer=SGD(lr=self.learning_rate),  # Gradients will be clipped when L2 norm exceeds value
             loss=categorical_crossentropy_from_logits,
             metrics=[categorical_accuracy_with_variable_timestep]
         )

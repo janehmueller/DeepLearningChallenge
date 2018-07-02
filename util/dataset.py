@@ -62,10 +62,16 @@ class Dataset(object):
         self._validation_file = self.FileClass(self._ANNOTATION_VALIDATION_FILE)
         self._validation_set = self._build_set(self._IMG_VALIDATION_DIRNAME, self._validation_file)
 
-    def _build_set(self, img_dir_name, train_file, max_files=10):
+    def _build_set(self, img_dir_name, train_file):
+        max_files = base_configuration['params']['max_files']
+        skip_files = base_configuration['params']['skip_files']
         dataset = []
         count = 0
+        to_skip = skip_files
         for imageId, image_file_name in train_file.id_file_map.items():
+            if to_skip > 0:
+                to_skip -= 1
+                continue
             for caption in train_file.id_caption_map[imageId]:
                 dataset.append(Datum(img_filename=image_file_name,
                                      img_path=os.path.join(img_dir_name, image_file_name),

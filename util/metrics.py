@@ -22,7 +22,14 @@ def categorical_crossentropy_from_logits(y_true, y_pred):
     # Discard the one-hot encoded EOS token
     y_true = y_true[:, :-1, :]
     y_pred = y_pred[:, :-1, :]
-    return softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred)
+
+    y_true = tensorflow.Print(y_true, [y_true], 'Y_TRUE: ')
+    y_pred = tensorflow.Print(y_pred, [y_pred], 'Y_PRED: ')
+
+    loss = softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred)
+    loss = tensorflow.Print(loss, [loss], 'LOSS: ')
+
+    return loss
 
 
 def categorical_accuracy_with_variable_timestep(y_true, y_pred):
@@ -80,11 +87,13 @@ class BLEU(Score):
 
     def calculate(self, id_to_prediction, id_to_references):
         name_to_score = super(BLEU, self).calculate(id_to_prediction, id_to_references)
-        scores = name_to_score.values()[0]
+        scores = next(iter(name_to_score.values()))
         result = {}
         for index, score in enumerate(scores, start=1):
-            name = self.score_name + "_" + index
+            name = self.score_name + "_" + str(index)
             result[name] = score
+
+        return result
 
 
 class CIDEr(Score):

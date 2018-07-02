@@ -4,6 +4,9 @@ import sys
 import traceback
 from argparse import ArgumentParser
 
+import keras.backend as K
+from tensorflow.python import debug as tf_debug
+
 from keras.callbacks import CSVLogger, TensorBoard, ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 
 from .dataset_provider import DatasetProvider
@@ -142,6 +145,11 @@ class Training(object):
         os.makedirs(self.result_dir, exist_ok=True)
 
     def run(self):
+        #sess = K.get_session()
+
+        #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+        #K.set_session(sess)
+
         print("Building model..")
         self.model.build(self.dataset_provider.vocabs())
         if self.model_weights_path:
