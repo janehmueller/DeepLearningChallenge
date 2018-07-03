@@ -39,8 +39,8 @@
     }
   },
   "params": {
-    "batch_size": 64,
-    "max_files": 64,
+    "batch_size": 32,
+    "max_files": 0,
     "skip_files": 0,
     "bidirectional_rnn": false,
     "dataset_name": "coco",
