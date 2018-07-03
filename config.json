@@ -62,7 +62,7 @@
     "rnn_type": "lstm",
     "time_limit": null,
     "vocab_size": 2536,
-    "word_vector_init": "fasttext",
+    "word_vector_init": "fasttext"
   },
   "print_layer_outputs": false
 }
