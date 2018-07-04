@@ -7,6 +7,7 @@ from keras.layers import BatchNormalization, Dense, RepeatVector, Embedding, GRU
     Concatenate, Lambda
 from keras.optimizers import Adam, SGD
 from keras.regularizers import l1_l2
+from keras.utils import multi_gpu_model
 
 from .config import base_configuration
 from .metrics import categorical_crossentropy_from_logits, categorical_accuracy_with_variable_timestep
@@ -81,6 +82,7 @@ class Model(object):
 
         model = KerasModel(inputs=[image_input, sentence_input], outputs=rnn_output)
         print('LEARNING_RATE: {}'.format(self.learning_rate))
+        model = multi_gpu_model(model)
         model.compile(
             #optimizer=Adam(lr=self.learning_rate, clipnorm=5.0),  # Gradients will be clipped when L2 norm exceeds value
             optimizer=SGD(lr=self.learning_rate),  # Gradients will be clipped when L2 norm exceeds value

@@ -17,15 +17,18 @@ class ImagePreprocessor(object):
 
     def __init__(self):
         self.pad_images = base_configuration['params']['pad_images']
+        self.image_cache = {}
 
     def preprocess_image(self, path):
-        if self.pad_images:
-            image = self.pad_image(load_img(path), self.IMAGE_SIZE)
-        else:
-            image = load_img(path, target_size=self.IMAGE_SIZE)
-        image_array = img_to_array(image)
-        image_array = inception_v3.preprocess_input(image_array)
-        return image_array
+        if path not in self.image_cache:
+            if self.pad_images:
+                image = self.pad_image(load_img(path), self.IMAGE_SIZE)
+            else:
+                image = load_img(path, target_size=self.IMAGE_SIZE)
+            image_array = img_to_array(image)
+            image_array = inception_v3.preprocess_input(image_array)
+            self.image_cache[path] = image_array
+        return self.image_cache[path]
 
     def preprocess_batch(self, image_list):
         return np.array(image_list)
