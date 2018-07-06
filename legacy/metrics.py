@@ -9,7 +9,7 @@ from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.meteor import meteor
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
-from util.config import base_configuration
+from src.config import base_configuration
 
 
 def categorical_crossentropy_from_logits(y_true, y_pred):

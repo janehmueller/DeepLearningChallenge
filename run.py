@@ -1,6 +1,6 @@
 import argparse
 
-from util.config import base_configuration
+from src.config import base_configuration
 
 import keras
 
