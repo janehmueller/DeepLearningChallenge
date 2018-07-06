@@ -1,4 +1,7 @@
-from os import path
+import itertools
+
+from keras.callbacks import ModelCheckpoint
+from os import path, makedirs
 
 from keras import Sequential
 from keras.layers import Dense
@@ -32,6 +35,9 @@ def training_data(images, text_preprocessor, file_loader):
 
 
 def main():
+    model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
+    makedirs(model_dir, exist_ok=True)
+
     file_loader = File.load(base_configuration['selected_dataset'])
 
     image_net = ImageNet(file_loader)
@@ -51,11 +57,18 @@ def main():
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
-    step_size = int((image_net.images_num / base_configuration['batch_size']) + .5)
+    checkpoint = ModelCheckpoint(path.join(model_dir, '{epoch:02d}.hdf5'), verbose=1)
+    callbacks = [
+        checkpoint,
+    ]
 
-    model.fit_generator(training_data_generator, steps_per_epoch=step_size, **base_configuration['fit_params'])
+    step_size = int((image_net.captions_num / base_configuration['batch_size']) + .5)
+    model.fit_generator(training_data_generator,
+                        steps_per_epoch=step_size,
+                        callbacks=callbacks,
+                        **base_configuration['fit_params'])
 
-    model.save(path.join(base_configuration['tmp_path'], 'model-all.hdf5'), overwrite=True)
+    model.save(path.join(model_dir, 'model-all.hdf5'), overwrite=True)
 
 
 if __name__ == '__main__':

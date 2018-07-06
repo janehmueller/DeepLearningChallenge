@@ -1,3 +1,5 @@
+import itertools
+
 import keras
 from keras import Sequential
 from keras.layers import Dense
@@ -31,15 +33,22 @@ class ImageNet:
 
     @property
     def images(self):
-        return ((file_id, self.preprocess_image(path)) for file_id, path in self.file_loader.id_file_map.items())
+        while True:
+            print('RESTARTING IMAGE GENERATOR')
+            for file_id, path in self.file_loader.id_file_map.items():
+                yield (file_id, self.preprocess_image(path))
 
     @property
     def images_num(self):
         return len(self.file_loader.id_file_map)
 
+    @property
+    def captions_num(self):
+        return sum((len(self.file_loader.id_caption_map[key]) for key in self.file_loader.id_file_map.keys()))
+
 
 if __name__ == "__main__":
-    #file_loader = File.load(base_configuration['selected_dataset'])
+    # file_loader = File.load(base_configuration['selected_dataset'])
 
     image_net = ImageNet(None)
 

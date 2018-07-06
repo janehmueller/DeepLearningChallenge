@@ -27,6 +27,11 @@ class File:
         pass
 
     @property
+    @abc.abstractmethod
+    def id_caption_map(self):
+        pass
+
+    @property
     def image_base_path(self):
         return path.join(base_configuration['data_path'],
                          base_configuration['datasets'][self.DATASET_NAME]['train']['train_dir'])
@@ -45,12 +50,16 @@ class CocoFile(File):
         with open(self.annotation_path) as file:
             self.data = json.load(file)
 
+            if base_configuration['image_input_num']:
+                self.data['images'] = self.data['images'][:base_configuration['image_input_num']]
+
     @property
     def id_file_map(self):
         if not self._id_file_map:
             self._id_file_map = {}
             for annotation in self.data['images']:
                 self._id_file_map[annotation['id']] = path.join(self.image_base_path, annotation['file_name'])
+
         return self._id_file_map
 
     @property
