@@ -73,6 +73,12 @@ class TextPreprocessor(object):
     def encode_caption(self, caption):
         return self.encode_captions([caption])[0]
 
+    def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
+        one_hot = np.zeros([len(caption_indices), one_hot_size])
+        one_hot[np.arange(len(caption_indices)), caption_indices] = 1
+        # Transform padding one-hot encoding with a 0-filled vector
+        return np.pad(one_hot[:, 1:], [1, 0], mode='constant', constant_values=0)[1:]
+
     def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
         """
         Tokenizes and one-hot encodes captions. They are returned as numpy array with the shape
