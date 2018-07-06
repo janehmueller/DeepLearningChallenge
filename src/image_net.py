@@ -31,7 +31,7 @@ class ImageNet:
 
     @property
     def images(self):
-        return (self.preprocess_image(path) for path in self.file_loader.id_file_map.values())
+        return ((file_id, self.preprocess_image(path)) for file_id, path in self.file_loader.id_file_map)
 
 
 if __name__ == "__main__":

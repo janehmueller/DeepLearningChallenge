@@ -9,7 +9,7 @@ from zipfile import ZipFile
 
 import numpy as np
 from keras import Sequential
-from keras.layers import Embedding, Dense
+from keras.layers import Dense
 from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
 
@@ -88,7 +88,7 @@ class WordVector(object):
         assert len(unsupported_lines) <= 0, "{} unsupported lines\n".format(len(unsupported_lines)) + "\n".join(unsupported_lines)
 
 
-def word_embedding(vocab:Dict[str, int], word_vectors:WordVector):
+def word_embedding(vocab: Dict[str, int], word_vectors: WordVector):
     output_size = word_vectors.embedding_size()
     input_size = len(vocab) + 1
 
@@ -97,7 +97,7 @@ def word_embedding(vocab:Dict[str, int], word_vectors:WordVector):
 
     word_vector_weights = []
     word_vector_weights.append(np.zeros(output_size))
-    for caption , idx in sorted_vocab:
+    for caption, idx in sorted_vocab:
         caption_word_vector = word_vectors.vectorize_word(caption)
 
         if caption_word_vector is None:
@@ -178,7 +178,7 @@ class TextPreprocessor(object):
             one_hot_captions.append([])
             for token in caption:
                 one_hot = np.zeros(max_idx)
-                one_hot[token] = int(bool(token)) # padding will be array of 0s
+                one_hot[token] = int(bool(token))  # padding will be array of 0s
                 one_hot_captions[i].append(one_hot)
 
         return np.asarray(one_hot_captions)

@@ -46,6 +46,12 @@
     "metrics": []
   },
   "sizes": {
-    "rnn_input": 300
+    "rnn_input": 300,
+    "rnn_output": 300,
+    "repeat_vector_length": 128
+  },
+  "fit_params": {
+    "batch_size": 32,
+    "epochs": 6
   }
 }
