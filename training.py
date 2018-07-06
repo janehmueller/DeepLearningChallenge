@@ -35,7 +35,7 @@ def main():
     model_list_add(model, rnn_net.layers)
     model.add(Dense(len(text_preprocessor.vocab) + 1))
 
-    model = multi_gpu_model(model)
+    #model = multi_gpu_model(model)
 
     model.compile(**base_configuration['model_hyper_params'])
 
