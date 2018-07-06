@@ -1,6 +1,5 @@
 import argparse
 
-from util import training
 from util.config import base_configuration
 from util.word_vectors import WordVector
 
