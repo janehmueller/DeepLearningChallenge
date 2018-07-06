@@ -4,7 +4,7 @@ from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
-from src.text_preprocessing import TextPreprocessor, word_embedding, WordVector
+from src.text_preprocessing import TextPreprocessor
 
 
 def model_list_add(model: Sequential, layer_list):
@@ -28,8 +28,7 @@ def main():
 
     model = Sequential()
     model_list_add(model, image_net.layers)
-    model_list_add(model, word_embedding(text_preprocessor.vocab,
-                                         WordVector(text_preprocessor.vocab, "fasttext")))
+    model_list_add(model, text_preprocessor.word_embedding_layer())
     model_list_add(model, rnn_net.layers)
 
     model.compile(**base_configuration['model_hyper_params'])
