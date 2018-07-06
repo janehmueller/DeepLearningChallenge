@@ -1,0 +1,68 @@
+{
+  "data_path": "/data/dl_lecture_data/TrainVal",
+  "tmp_path": "tmp",
+  "pretrained_models_path": "data/pretrained",
+
+  "datasets": {
+    "coco" : {
+      "train":{
+        "train_dir" : "train2014",
+        "train_annotation_file" : "annotations/captions_train2014.json"
+      },
+      "validation":{
+        "validation_dir" : "val2014",
+        "validation_annotation_file" : "annotations/captions_val2014.json"
+      }
+    }
+  },
+
+  "files": {
+    "pretrained": {
+      "word_vectors": {
+        "fasttext": {
+          "path": "fasttext/wiki.en.vec",
+          "embedding_size": 300,
+          "uri": {
+            "url": "https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec",
+            "type": "file"
+          }
+        },
+        "glove": {
+          "path": "glove/glove.42B.300d.txt",
+          "embedding_size": 300,
+          "uri": {
+            "url": "http://nlp.stanford.edu/data/glove.42B.300d.zip",
+            "type": "zip"
+          }
+        }
+      }
+    }
+  },
+  "params": {
+    "batch_size": 32,
+    "max_files": 0,
+    "skip_files": 0,
+    "bidirectional_rnn": false,
+    "dataset_name": "coco",
+    "dropout_rate": 0.21972921573455206,
+    "early_stopping_patience": 10,
+    "embedding_size": 300,
+    "epochs": 33,
+    "image_augmentation": null,
+    "initializer": "glorot_uniform",
+    "l1_reg": 0.0,
+    "l2_reg": 0.0,
+    "learning_rate": 0.0005050182149478269,
+    "lemmatize_caption": false,
+    "pad_images": false,
+    "reduce_lr_factor": 0.3,
+    "reduce_lr_patience": 3,
+    "rnn_layers": 3,
+    "rnn_output_size": 300,
+    "rnn_type": "lstm",
+    "time_limit": null,
+    "vocab_size": 2536,
+    "word_vector_init": "fasttext"
+  },
+  "print_layer_outputs": false
+}
