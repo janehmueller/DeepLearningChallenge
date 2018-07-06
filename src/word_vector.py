@@ -7,12 +7,11 @@ from zipfile import ZipFile
 import requests
 
 from src.config import base_configuration
-from src.text_preprocessing import TextPreprocessor
 
 
 class WordVector(object):
     def vectorize_word(self, word: str):
-        return self.word_vectors[word]
+        return self.word_vectors.get(word, None)
 
     def embedding_size(self):
         return 300
@@ -71,12 +70,12 @@ class WordVector(object):
             word = " ".join(tokens[:-300])
             vector = tokens[-300:]
             if word == '.':
-                self.word_vectors[TextPreprocessor.eos_token()] = np.asarray(vector, dtype='float32')
+                self.word_vectors[base_configuration["eos_token"]] = np.asarray(vector, dtype='float32')
             elif word in vocab:
                 if len(tokens) <= 300:
                     unsupported_lines.append(line)
                     continue
                 self.word_vectors[word] = np.asarray(vector, dtype='float32')
-        assert len(self.word_vectors) == len(vocab)
-        assert TextPreprocessor.eos_token() in self.word_vectors
+
+        assert base_configuration["eos_token"] in self.word_vectors
         assert len(unsupported_lines) <= 0, "{} unsupported lines\n".format(len(unsupported_lines)) + "\n".join(unsupported_lines)

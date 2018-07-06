@@ -47,5 +47,6 @@
   },
   "sizes": {
     "rnn_input": 300
-  }
+  },
+  "eos_token": "zeornd"
 }

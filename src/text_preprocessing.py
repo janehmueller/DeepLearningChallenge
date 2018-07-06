@@ -33,7 +33,7 @@ class TextPreprocessor(object):
         The end-of-string token, which signifies the end of a caption.
         :return: the end-of-string token as string
         """
-        return "zeornd"
+        return base_configuration["eos_token"]
 
     def vocab_size(self) -> int:
         """
@@ -164,7 +164,7 @@ class TextPreprocessor(object):
 if __name__ == "__main__":
     with open("data/annotations/pretty_train.json") as file:
         data = json.load(file)
-        data = [annotation["caption"] for annotation in data["annotations"]][:2]
+        data = [annotation["caption"] for annotation in data["annotations"]]
 
         tp = TextPreprocessor()
         tp.fit_captions(data)
