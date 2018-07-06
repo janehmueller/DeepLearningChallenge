@@ -115,28 +115,24 @@ class TextPreprocessor(object):
         self.tokenizer.fit_on_texts(captions)
         self.vocab = self.tokenizer.word_index
 
-    def encode_captions(self, captions: List[str]) -> np.ndarray:
+    def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
+        one_hot = np.zeros([len(caption_indices), one_hot_size])
+        one_hot[np.arange(len(caption_indices)), caption_indices] = 1
+        return np.pad(one_hot[:, 1:], [1, 0], mode='constant', constant_values=0)[1:]
+
+    def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
         """
         Tokenizes and one-hot encodes captions. They are returned as numpy array with the shape
         (num_captions, size_of_longest_caption, vocab_size + 1). Padding is encoded as zero-vector.
         :param captions: list of the captions as string
-        :return: numpy array of the one-hot encoded captions.
+        :return: list of the one-hot encoded captions as numpy arrays
         """
         captions_indices = self.tokenizer.texts_to_sequences(captions)
         captions_indices = [caption + [self.eos_token_index()] for caption in captions_indices]
         captions_indices = np.array(list(itertools.zip_longest(*captions_indices, fillvalue=0))).T
 
         max_idx = len(self.vocab) + 1
-
-        one_hot_captions = []
-        for i, caption in enumerate(captions_indices):
-            one_hot_captions.append([])
-            for token in caption:
-                one_hot = np.zeros(max_idx)
-                one_hot[token] = int(bool(token))  # padding will be array of 0s
-                one_hot_captions[i].append(one_hot)
-
-        return np.asarray(one_hot_captions)
+        return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
 
     def decode_captions(self, one_hot_captions: np.ndarray) -> List[str]:
         """
