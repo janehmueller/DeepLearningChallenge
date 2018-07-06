@@ -1,6 +1,5 @@
 import itertools
 import json
-
 from typing import List, Dict
 
 import numpy as np
@@ -72,7 +71,7 @@ class TextPreprocessor(object):
         self.vocab = self.tokenizer.word_index
 
     def encode_caption(self, caption):
-        return self.encode_captions([caption])
+        return self.encode_captions([caption])[0]
 
     def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
         """
@@ -158,7 +157,7 @@ if __name__ == "__main__":
         data = [annotation["caption"] for annotation in data["annotations"]]
 
         tp = TextPreprocessor()
-        tp.fit_captions(data)
+        tp.process_captions([data])
 
         model = Sequential()
         [model.add(layer) for layer in tp.word_embedding_layer()]
