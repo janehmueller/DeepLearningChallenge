@@ -1,5 +1,13 @@
 import itertools
 import json
+from zipfile import ZipFile
+
+import shutil
+
+import os
+import requests
+
+from os import path
 from typing import List, Dict
 from itertools import groupby
 
@@ -27,7 +35,7 @@ class WordVector(object):
         self._vector_type = vector_type
         self._input_file = self.vector_type_info['path']
         self._input_file = path.join(base_configuration['pretrained_models_path'], self._input_file)
-        self._input_file = self._input_file if os.path.isabs(self._input_file) else os.path.join('.', self._input_file)
+        self._input_file = self._input_file if path.isabs(self._input_file) else path.join('.', self._input_file)
         self._fetch_data_if_needed()
         self._load_pretrained_vectors(vocab)
 
@@ -179,49 +187,16 @@ class TextPreprocessor(object):
         grouped_data = groupby(flat_id_to_captions, lambda kv_pair: kv_pair[0])
         return dict([(image_id, list(map(lambda x: x[1], captions))) for image_id, captions in grouped_data])
 
-    def process_id_to_captions(self, id_to_captions: Dict[int, List[str]]) -> Dict[int, List[np.ndarray]]:
-        ids, captions = self.unzip_and_flatten_id_to_captions(id_to_captions)
-        encoded_captions = self.process_captions(captions)
-        return self.zip_flat_id_to_captions(ids, encoded_captions)
+    def process_captions(self, captions: List[str]):
+        flat_captions = list(itertools.chain(*captions))
 
-    def fit_on_id_to_captions(self, id_to_captions: Dict[int, List[str]]):
-        ids, captions = self.unzip_and_flatten_id_to_captions(id_to_captions)
-        self.fit_captions(captions)
-
-    def encode_id_to_captions(self, id_to_captions: Dict[int, List[str]]) -> Dict[int, List[np.ndarray]]:
-        ids, captions = self.unzip_and_flatten_id_to_captions(id_to_captions)
-        encoded_captions = self.encode_captions(captions)
-        return self.zip_flat_id_to_captions(ids, encoded_captions)
-
-    def process_captions(self, captions: List[str]) -> np.ndarray:
-        """
-        Updates the vocabulary with the captions and encodes the captions.
-        :param captions: list of captions as string
-        :return: the one-hot encoded captions as numpy array
-        """
-        self.fit_captions(captions)
-        return self.encode_captions(captions)
-
-    def fit_captions(self, captions: List[str]):
-        """
-        Updates the vocabulary with the captions.
-        :param captions: list of captions as string
-        """
-        self.tokenizer.fit_on_texts(captions)
+        self.tokenizer.fit_on_texts(flat_captions)
         self.vocab = self.tokenizer.word_index
 
-    def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
-        one_hot = np.zeros([len(caption_indices), one_hot_size])
-        one_hot[np.arange(len(caption_indices)), caption_indices] = 1
-        return np.pad(one_hot[:, 1:], [1, 0], mode='constant', constant_values=0)[1:]
+    def encode_caption(self, caption):
+        return self.encode_captions([caption])
 
-    def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
-        """
-        Tokenizes and one-hot encodes captions. They are returned as numpy array with the shape
-        (num_captions, size_of_longest_caption, vocab_size + 1). Padding is encoded as zero-vector.
-        :param captions: list of the captions as string
-        :return: list of the one-hot encoded captions as numpy arrays
-        """
+    def encode_captions(self, captions: List[str]) -> np.ndarray:
         captions_indices = self.tokenizer.texts_to_sequences(captions)
         captions_indices = [caption + [self.eos_token_index()] for caption in captions_indices]
         captions_indices = np.array(list(itertools.zip_longest(*captions_indices, fillvalue=0))).T
