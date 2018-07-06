@@ -1,7 +1,6 @@
 import itertools
 import json
 from typing import List, Dict
-from itertools import groupby
 
 import numpy as np
 from keras import Sequential
@@ -22,10 +21,13 @@ class TextPreprocessor(object):
     tokenizer: Tokenizer = None
     _vocab: Dict[str, int] = None
     inverse_vocab: Dict[int, str] = None
+    word_vectors: WordVector = None
+    word_vector_type: str = None
 
-    def __init__(self):
+    def __init__(self, word_vector_type: str = "fasttext"):
         self.tokenizer = Tokenizer()
         self.tokenizer.fit_on_texts([self.eos_token()])
+        self.word_vector_type = word_vector_type
 
     @staticmethod
     def eos_token() -> str:
@@ -62,58 +64,14 @@ class TextPreprocessor(object):
         """
         return self.vocab[self.eos_token()]
 
-    def unzip_and_flatten_id_to_captions(self, id_to_captions: Dict[int, List[str]]):
-        """
-        Flattens the dictionary of the image ids and the list of captions into two equally long lists of the ids and
-        the captions. The list of ids contains every id exactly num_captions_for_that_image times.
-        :param id_to_captions: dict of image id to list of captions for that image
-        :return: tuple of flattened list of image ids and list of captions
-        """
-        flat_id_to_captions = [(image_id, caption) for image_id, image_captions in id_to_captions.items() for caption in image_captions]
-        return zip(*list(flat_id_to_captions))
+    def process_captions(self, captions: List[List[str]]):
+        flat_captions = list(itertools.chain(*captions))
 
-    def zip_flat_id_to_captions(self, ids: List[int], encoded_captions: np.ndarray) -> Dict[int, List[np.ndarray]]:
-        """
-        Groups the flattened list of image ids and encoded captions into a dictionary pointing from image id to a list
-        of the one-hot encoded captions.
-        :param ids: list of ids returned by self.unzip_and_flatten_id_to_captions
-        :param encoded_captions: numpy array of the one-hot encoded captions
-        :return:
-        """
-        flat_id_to_captions = zip(ids, encoded_captions)
-        grouped_data = groupby(flat_id_to_captions, lambda kv_pair: kv_pair[0])
-        return dict([(image_id, list(map(lambda x: x[1], captions))) for image_id, captions in grouped_data])
-
-    def process_id_to_captions(self, id_to_captions: Dict[int, List[str]]) -> Dict[int, List[np.ndarray]]:
-        ids, captions = self.unzip_and_flatten_id_to_captions(id_to_captions)
-        encoded_captions = self.process_captions(captions)
-        return self.zip_flat_id_to_captions(ids, encoded_captions)
-
-    def fit_on_id_to_captions(self, id_to_captions: Dict[int, List[str]]):
-        ids, captions = self.unzip_and_flatten_id_to_captions(id_to_captions)
-        self.fit_captions(captions)
-
-    def encode_id_to_captions(self, id_to_captions: Dict[int, List[str]]) -> Dict[int, List[np.ndarray]]:
-        ids, captions = self.unzip_and_flatten_id_to_captions(id_to_captions)
-        encoded_captions = self.encode_captions(captions)
-        return self.zip_flat_id_to_captions(ids, encoded_captions)
-
-    def process_captions(self, captions: List[str]) -> np.ndarray:
-        """
-        Updates the vocabulary with the captions and encodes the captions.
-        :param captions: list of captions as string
-        :return: the one-hot encoded captions as numpy array
-        """
-        self.fit_captions(captions)
-        return self.encode_captions(captions)
-
-    def fit_captions(self, captions: List[str]):
-        """
-        Updates the vocabulary with the captions.
-        :param captions: list of captions as string
-        """
-        self.tokenizer.fit_on_texts(captions)
+        self.tokenizer.fit_on_texts(flat_captions)
         self.vocab = self.tokenizer.word_index
+
+    def encode_caption(self, caption):
+        return self.encode_captions([caption])[0]
 
     def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
         one_hot = np.zeros([len(caption_indices), one_hot_size])
@@ -134,6 +92,11 @@ class TextPreprocessor(object):
 
         max_idx = len(self.vocab) + 1
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
+
+    def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
+        one_hot = np.zeros([len(caption_indices), one_hot_size])
+        one_hot[np.arange(len(caption_indices)), caption_indices] = 1
+        return np.pad(one_hot[:, 1:], [1, 0], mode='constant', constant_values=0)[1:]
 
     def decode_captions(self, one_hot_captions: np.ndarray) -> List[str]:
         """
@@ -162,15 +125,15 @@ class TextPreprocessor(object):
             self.vocab = json.load(file)
             self.tokenizer.word_index = self.vocab
 
-    def word_embedding_layer(self, word_vector_type: str = "fasttext") -> List[Layer]:
+    def word_embedding_layer(self) -> List[Layer]:
         """
         Builds the embedding layer that is prepended to every RNN timestep.
-        :param word_vector_type: which word embeddings should be used (default fasttext)
         :return: one-element list of the dense layer
         """
 
-        word_vectors = WordVector(self.vocab, word_vector_type)
-        output_size = word_vectors.embedding_size()
+        if not self.word_vectors:
+            self.word_vectors = WordVector(self.vocab, self.word_vector_type)
+        output_size = self.word_vectors.embedding_size()
         input_size = self.vocab_size() + 1  # add 1 since the vocab does not contain 0 as index (so a vocab with size 1
                                             # needs a vector with 2 elements for its one-hot encoding)
 
@@ -180,7 +143,7 @@ class TextPreprocessor(object):
         word_vector_weights = []
         word_vector_weights.append(np.zeros(output_size))
         for caption, idx in sorted_vocab:
-            caption_word_vector = word_vectors.vectorize_word(caption)
+            caption_word_vector = self.word_vectors.vectorize_word(caption)
 
             if caption_word_vector is None:
                 caption_word_vector = np.random.normal(size=output_size, scale=np.sqrt(2. / (output_size + input_size)))
@@ -200,10 +163,10 @@ if __name__ == "__main__":
         data = [annotation["caption"] for annotation in data["annotations"]]
 
         tp = TextPreprocessor()
-        tp.fit_captions(data)
+        tp.process_captions([data])
 
         model = Sequential()
-        [model.add(layer) for layer in tp.word_embedding_layer("fasttext")]
+        [model.add(layer) for layer in tp.word_embedding_layer()]
 
         model.compile(loss="mean_squared_error", optimizer=SGD(lr=1e-4))
         tmp = tp.encode_captions([TextPreprocessor.eos_token()])[0][0]
