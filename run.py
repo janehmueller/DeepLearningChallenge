@@ -1,7 +1,6 @@
 import argparse
 
 from util.config import base_configuration
-from util.word_vectors import WordVector
 
 import keras
 
@@ -12,7 +11,7 @@ def main():
 
     args = parser.parse_args()
 
-    WordVector(['one', 'two', 'three'], keras.initializers.RandomUniform(0, 1), 'glove')
+    print(base_configuration)
 
 
 if __name__ == '__main__':
