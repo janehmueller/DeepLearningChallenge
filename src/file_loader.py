@@ -1,28 +1,48 @@
 import json
-import os
+from os import path
 
-from .config import fix_for_project_root_path
+import abc
+
+from .config import base_configuration
 
 
 class File:
-    def __init__(self, path):
-        self.path = fix_for_project_root_path(path)
+    DATASET_NAME = None
+
+    def __init__(self):
         self.data = None
 
     @staticmethod
     def load(dataset_name):
-        return class_dict[dataset_name]
+        return class_dict[dataset_name]()
+
+    @property
+    def annotation_path(self):
+        return path.join(base_configuration['data_path'],
+                         base_configuration['datasets'][self.DATASET_NAME]['train']['train_annotation_file'])
+
+    @property
+    @abc.abstractmethod
+    def id_file_map(self):
+        pass
+
+    @property
+    def image_base_path(self):
+        return path.join(base_configuration['data_path'],
+                         base_configuration['datasets'][self.DATASET_NAME]['train']['train_dir'])
 
 
 class CocoFile(File):
-    def __init__(self, path):
-        super(CocoFile, self).__init__(path)
+    DATASET_NAME = 'coco'
+
+    def __init__(self):
+        super(CocoFile, self).__init__()
         self._id_file_map = None
         self._id_caption_map = None
         self.preprocess()
 
     def preprocess(self):
-        with open(self.path) as file:
+        with open(self.annotation_path) as file:
             self.data = json.load(file)
 
     @property
@@ -30,7 +50,7 @@ class CocoFile(File):
         if not self._id_file_map:
             self._id_file_map = {}
             for annotation in self.data['images']:
-                self._id_file_map[annotation['id']] = annotation['file_name']
+                self._id_file_map[annotation['id']] = path.join(self.image_base_path, annotation['file_name'])
         return self._id_file_map
 
     @property
@@ -49,14 +69,16 @@ class CocoFile(File):
 
 
 class Flickr30kFile(File):
-    def __init__(self, path):
-        super(Flickr30kFile, self).__init__(path)
+    DATASET_NAME = 'flickr30k'
+
+    def __init__(self):
+        super(Flickr30kFile, self).__init__()
         self._id_file_map = {}
         self._id_caption_map = {}
         self.preprocess()
 
     def preprocess(self):
-        with open(self.path) as file:
+        with open(self.annotation_path) as file:
             for line in file:
                 tokens = line.split("/t")
                 image_name, caption_nr = tokens[0].split("#")
@@ -78,6 +100,6 @@ class Flickr30kFile(File):
 
 
 class_dict = {
-    "coco": CocoFile,
-    "flickr30k": Flickr30kFile
+    CocoFile.DATASET_NAME: CocoFile,
+    Flickr30kFile.DATASET_NAME: Flickr30kFile,
 }
