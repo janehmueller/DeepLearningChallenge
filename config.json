@@ -16,6 +16,8 @@
     }
   },
 
+  "selected_dataset": "coco",
+
   "files": {
     "pretrained": {
       "word_vectors": {
@@ -38,5 +40,12 @@
       }
     }
   },
-  "params": {}
+  "model_hyper_params": {
+    "loss": "binary_crossentropy",
+    "optimizer": "adadelta",
+    "metrics": []
+  },
+  "sizes": {
+    "rnn_input": 300
+  }
 }
