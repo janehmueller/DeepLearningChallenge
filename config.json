@@ -52,6 +52,8 @@
   },
   "fit_params": {
     "batch_size": 32,
-    "epochs": 6
-  }
+    "epochs": 6,
+    "rnn_input": 300
+  },
+  "eos_token": "zeornd"
 }
