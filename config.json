@@ -51,9 +51,7 @@
     "repeat_vector_length": 128
   },
   "fit_params": {
-    "batch_size": 32,
-    "epochs": 6,
-    "rnn_input": 300
+    "epochs": 6
   },
   "eos_token": "zeornd"
 }

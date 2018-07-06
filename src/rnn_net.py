@@ -15,7 +15,7 @@ class RNNNet:
         layers.append(GRU(
             base_configuration['sizes']['rnn_output'],
             return_sequences=True,
-            stateful=True
+            stateful=False
         ))
 
         return layers

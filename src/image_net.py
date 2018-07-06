@@ -26,12 +26,16 @@ class ImageNet:
 
     @staticmethod
     def preprocess_image(path):
-        loaded_image = load_img(path, (299, 299))
+        loaded_image = load_img(path, target_size=(299, 299))
         return np.reshape(img_to_array(loaded_image), [299 * 299 * 3])
 
     @property
     def images(self):
-        return ((file_id, self.preprocess_image(path)) for file_id, path in self.file_loader.id_file_map)
+        return ((file_id, self.preprocess_image(path)) for file_id, path in self.file_loader.id_file_map.items())
+
+    @property
+    def images_num(self):
+        return len(self.file_loader.id_file_map)
 
 
 if __name__ == "__main__":
