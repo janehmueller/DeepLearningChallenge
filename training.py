@@ -16,9 +16,20 @@ def model_list_add(model: Sequential, layer_list):
 
 
 def training_data(images, text_preprocessor, file_loader):
+    batch_size = base_configuration['batch_size']
+    i = 0
+    batch_images = []
+    batch_captions = []
     for image_id, image in images:
         for caption in file_loader.id_caption_map[image_id]:
-            yield (np.asarray([image]), np.asarray([text_preprocessor.encode_caption(caption)]))
+            if i == batch_size:
+                yield (np.asarray(batch_images), np.asarray(batch_captions))
+                i = 0
+                batch_images = []
+                batch_captions = []
+            batch_images.append(image)
+            batch_captions.append(text_preprocessor.encode_caption(caption))
+            i += 1
 
 
 def main():

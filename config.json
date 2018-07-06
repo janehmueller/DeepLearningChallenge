@@ -53,5 +53,6 @@
   "fit_params": {
     "epochs": 6
   },
-  "eos_token": "zeornd"
+  "eos_token": "zeornd",
+  "batch_size": 32
 }
