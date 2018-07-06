@@ -4,7 +4,7 @@ import os
 import requests
 import shutil
 from os import path
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from zipfile import ZipFile
 
 import numpy as np
@@ -141,7 +141,28 @@ class TextPreprocessor(object):
     def eos_token_index(self):
         return self.dictionary[self.eos_token()]
 
+    def unzip_id_to_captions(self, id_to_captions: Dict[int, str]):
+        return zip(*list(id_to_captions.items()))
+
+    def process_id_to_captions(self, id_to_captions: Dict[int, str]):
+        ids, captions = self.unzip_id_to_captions(id_to_captions)
+        encoded_captions = self.process_captions(captions)
+        return dict(zip(ids, encoded_captions))
+
+    def fit_on_id_to_captions(self, id_to_captions: Dict[int, str]):
+        ids, captions = self.unzip_id_to_captions(id_to_captions)
+        self.fit_captions(captions)
+
+    def encode_id_to_captions(self, id_to_captions: Dict[int, str]):
+        ids, captions = self.unzip_id_to_captions(id_to_captions)
+        encoded_captions = self.encode_captions(captions)
+        return dict(zip(ids, encoded_captions))
+
     def process_captions(self, captions: List[str]):
+        self.fit_captions(captions)
+        return self.encode_captions(captions)
+
+    def fit_captions(self, captions: List[str]):
         self.tokenizer.fit_on_texts(captions)
         self.dictionary = self.tokenizer.word_index
 
@@ -191,7 +212,7 @@ if __name__ == "__main__":
         data = [annotation["caption"] for annotation in data["annotations"]][:2]
 
         tp = TextPreprocessor()
-        tp.process_captions(data)
+        tp.fit_captions(data)
 
         wv = WordVector(tp.dictionary, "fasttext")
 
