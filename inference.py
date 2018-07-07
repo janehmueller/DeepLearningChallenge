@@ -34,6 +34,8 @@ def main():
     pred_caption = predictions[0]  # TODO fix the repetirtion of result (RepeatVector!?)
     caption_indices = np.argmin(pred_caption, axis=1)
 
+    # TODO translate to words via vocabulary of training pass (see serialize and deserialize in text_processing)
+
     print("Shape of predictions: {}".format(predictions.shape))
 
 
