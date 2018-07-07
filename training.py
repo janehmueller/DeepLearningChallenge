@@ -17,10 +17,7 @@ from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from src.text_preprocessing import TextPreprocessor
-
-
-def categorical_crossentropy_from_logits(y_true, y_pred):
-    return softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred)
+from util.loss import categorical_crossentropy_from_logits
 
 
 def model_list_add(model: Sequential, layer_list):
@@ -64,11 +61,13 @@ def main():
     model_list_add(model, image_net.layers)
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
-    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size)))
+    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
 
     model = multi_gpu_model(model)
 
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
+
+    #loss='categorical_crossentropy'
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
