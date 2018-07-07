@@ -5,7 +5,7 @@ from keras.callbacks import ModelCheckpoint
 from os import path, makedirs
 import time
 
-from keras import Sequential
+from keras import Sequential, Model
 from keras.layers import Dense
 import numpy as np
 from keras.utils import multi_gpu_model
@@ -54,7 +54,8 @@ def main():
     text_preprocessor.process_captions(file_loader.id_caption_map.values())
 
     model = Sequential()
-    model_list_add(model, image_net.layers)
+    inception, image_net_layers = image_net.inception
+    model_list_add(model, image_net_layers)
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
     model.add(Dense(text_preprocessor.one_hot_encoding_size))
@@ -62,6 +63,9 @@ def main():
     model = multi_gpu_model(model)
 
     model.compile(**base_configuration['model_hyper_params'])
+
+    func_model = model.model(inception)
+    model = Model(inputs=inception.input, outputs=func_model.output)
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 

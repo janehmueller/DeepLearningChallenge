@@ -2,7 +2,7 @@ import itertools
 
 import keras
 from keras import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, BatchNormalization
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
 from keras.applications import InceptionV3
@@ -17,34 +17,36 @@ from util.threading import LockedIterator
 class ImageNet:
     def __init__(self, file_loader: File):
         self.file_loader = file_loader
+        self.layers = []
+        self.inception = None
 
-    @property
-    def layers(self) -> list:
-        layers = []
-
-        layers.append(Dense(
-            base_configuration['sizes']['rnn_input'],
-            input_shape=[299 * 299 * 3]
-        ))
-
-        return layers
+    # @property
+    # def layers(self) -> list:
+    #     layers = []
+    #
+    #     layers.append(Dense(
+    #         base_configuration['sizes']['rnn_input'],
+    #         input_shape=[299 * 299 * 3]
+    #     ))
+    #
+    #     return layers
 
     @property
     def inception_model(self) -> InceptionV3:
         # Initialize with imagenet weights
-        model = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
+        self.inception = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
 
         # Fix weights
-        for layer in image_model.layers:
+        for layer in self.inception.layers:
             layer.trainable = False
 
-        model.add(BatchNormalization(axis=-1))
-        model.add(Dense(base_configuration['sizes']['rnn_input']))
+        self.layers.append(BatchNormalization(axis=-1))
+        self.layers.append(Dense(base_configuration['sizes']['rnn_input']))
         # TODO: regularizer and initializer
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer
 
-        return model
+        return self.inception, self.layers
 
     @staticmethod
     def preprocess_image(path):
