@@ -9,6 +9,7 @@ from keras import Sequential
 from keras.layers import Dense, TimeDistributed
 import numpy as np
 from keras.utils import multi_gpu_model
+from keras.callbacks import TensorBoard
 
 from src.config import base_configuration
 from src.file_loader import File
@@ -67,8 +68,10 @@ def main():
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
     checkpoint = ModelCheckpoint(path.join(model_dir, '{epoch:02d}.hdf5'), verbose=1)
+    tensorboard = TensorBoard(log_dir="logs/{}".format(time.time()))
     callbacks = [
         checkpoint,
+        tensorboard
     ]
 
     step_size = int((image_net.captions_num / base_configuration['batch_size']) + .5)
