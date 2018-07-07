@@ -17,9 +17,13 @@ class File:
         return class_dict[dataset_name]()
 
     @property
-    def annotation_path(self):
+    def test_annotation_path(self):
         return path.join(base_configuration['data_path'],
                          base_configuration['datasets'][self.DATASET_NAME]['train']['train_annotation_file'])
+
+    def val_annotation_path(self):
+        return path.join(base_configuration['data_path'],
+                         base_configuration['datasets'][self.DATASET_NAME]['validation']['validation_annotation_file'])
 
     @property
     @abc.abstractmethod
@@ -32,9 +36,14 @@ class File:
         pass
 
     @property
-    def image_base_path(self):
+    def test_image_base_path(self):
         return path.join(base_configuration['data_path'],
                          base_configuration['datasets'][self.DATASET_NAME]['train']['train_dir'])
+
+    @property
+    def val_image_base_path(self):
+        return path.join(base_configuration['data_path'],
+                         base_configuration['datasets'][self.DATASET_NAME]['validation']['validation_dir'])
 
 
 class CocoFile(File):
@@ -47,7 +56,7 @@ class CocoFile(File):
         self.preprocess()
 
     def preprocess(self):
-        with open(self.annotation_path) as file:
+        with open(self.test_annotation_path) as file:
             self.data = json.load(file)
 
             if base_configuration['image_input_num']:
@@ -58,7 +67,7 @@ class CocoFile(File):
         if not self._id_file_map:
             self._id_file_map = {}
             for annotation in self.data['images']:
-                self._id_file_map[annotation['id']] = path.join(self.image_base_path, annotation['file_name'])
+                self._id_file_map[annotation['id']] = path.join(self.test_image_base_path, annotation['file_name'])
 
         return self._id_file_map
 
@@ -87,7 +96,7 @@ class Flickr30kFile(File):
         self.preprocess()
 
     def preprocess(self):
-        with open(self.annotation_path) as file:
+        with open(self.test_annotation_path) as file:
             for line in file:
                 tokens = line.split("/t")
                 image_name, caption_nr = tokens[0].split("#")
