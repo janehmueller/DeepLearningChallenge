@@ -41,9 +41,10 @@
     }
   },
   "model_hyper_params": {
-    "loss": "binary_crossentropy",
-    "optimizer": "adadelta",
-    "metrics": []
+    "optimizer": "adam",
+    "metrics": [
+      "accuracy"
+    ]
   },
   "sizes": {
     "rnn_input": 300,
@@ -56,5 +57,5 @@
   },
   "eos_token": "zeornd",
   "batch_size": 64,
-  "image_input_num": 0
+  "image_input_num": 100
 }

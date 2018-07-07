@@ -1,5 +1,6 @@
 import itertools
 import json
+from os import path
 from typing import List, Dict
 
 import numpy as np
@@ -10,6 +11,7 @@ from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
 
 from src.config import base_configuration
+from src.file_loader import File
 from src.word_vector import WordVector
 
 
@@ -17,7 +19,7 @@ class TextPreprocessor(object):
     """
     Preprocessor that tokenizes and one-hot encodes captions.
     """
-    vocab_file: str = "vocab.json"
+    VOCAB_FILE: str = "vocab.json"
     tokenizer: Tokenizer = None
     _vocab: Dict[str, int] = None
     inverse_vocab: Dict[int, str] = None
@@ -110,6 +112,9 @@ class TextPreprocessor(object):
         max_idx = self.one_hot_encoding_size
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
 
+    def decode_caption(self, one_hot_caption):
+        return self.decode_captions(np.asarray([one_hot_caption]))[0]
+
     def decode_captions(self, one_hot_captions: np.ndarray) -> List[str]:
         """
         Decodes one-hot encoded captions into a list of captions as string.
@@ -126,14 +131,12 @@ class TextPreprocessor(object):
 
         return [" ".join(caption) for caption in decoded_captions]
 
-    def serialize(self):
-        path = base_configuration["tmp_path"] + "/" + self.vocab_file
-        with open(path, "w") as file:
+    def serialize(self, store_path):
+        with open(path.join(store_path, self.VOCAB_FILE), "w") as file:
             json.dump(self.vocab, file)
 
-    def deserialize(self):
-        path = base_configuration["tmp_path"] + "/" + self.vocab_file
-        with open(path, "r") as file:
+    def deserialize(self, store_path):
+        with open(path.join(store_path, self.VOCAB_FILE), "r") as file:
             self.vocab = json.load(file)
             self.tokenizer.word_index = self.vocab
 
@@ -163,22 +166,25 @@ class TextPreprocessor(object):
 
         biases = np.zeros(output_size)
 
-        layer = Dense(output_size, input_shape=[input_size], weights=[np.asarray(word_vector_weights), biases])
-        layer.trainable = False
+        layer = Dense(
+            output_size,
+            input_shape=[input_size],
+            weights=[np.asarray(word_vector_weights), biases],
+            trainable=False
+        )
         return [layer]
 
 
 if __name__ == "__main__":
-    with open("data/annotations/pretty_train.json") as file:
-        data = json.load(file)
-        data = [annotation["caption"] for annotation in data["annotations"]]
+    file_loader = File.load(base_configuration['selected_dataset'])
+    captions = file_loader.captions()[:10]
+    tp = TextPreprocessor()
+    tp.process_captions([captions])
+    [print(tp.decode_caption(tp.encode_caption(cap)) + cap) for cap in captions[:10]]
 
-        tp = TextPreprocessor()
-        tp.process_captions([data])
-
-        model = Sequential()
-        [model.add(layer) for layer in tp.word_embedding_layer()]
-
-        model.compile(loss="mean_squared_error", optimizer=SGD(lr=1e-4))
-        tmp = tp.encode_captions([TextPreprocessor.eos_token()])[0][0]
-        print(model.predict(np.array([tmp])))
+        # model = Sequential()
+        # [model.add(layer) for layer in tp.word_embedding_layer()]
+        #
+        # model.compile(loss="mean_squared_error", optimizer=SGD(lr=1e-4))
+        # tmp = tp.encode_captions([TextPreprocessor.eos_token()])[0][0]
+        # print(model.predict(np.array([tmp])))

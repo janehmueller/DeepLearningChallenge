@@ -6,15 +6,18 @@ from os import path, makedirs
 import time
 
 from keras import Sequential, Model
-from keras.layers import Dense
+from keras.layers import Dense, TimeDistributed
 import numpy as np
 from keras.utils import multi_gpu_model
+from keras.callbacks import TensorBoard
+from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
 
 from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from src.text_preprocessing import TextPreprocessor
+from util.loss import categorical_crossentropy_from_logits
 
 
 def model_list_add(model: Sequential, layer_list):
@@ -52,29 +55,36 @@ def main():
     rnn_net = RNNNet()
     text_preprocessor = TextPreprocessor()
     text_preprocessor.process_captions(file_loader.id_caption_map.values())
+    text_preprocessor.serialize(model_dir)
 
     model = Sequential()
     inception, image_net_layers = image_net.inception_model
     model_list_add(model, image_net_layers)
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
-    model.add(Dense(text_preprocessor.one_hot_encoding_size))
+    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
 
     # model = multi_gpu_model(model)
 
-    model.compile(**base_configuration['model_hyper_params'])
+    model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
 
     func_model = model(inception.output)
     model = Model(inputs=inception.input, outputs=func_model)
 
     model = multi_gpu_model(model)
-    model.compile(**base_configuration['model_hyper_params'])
+    model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
     checkpoint = ModelCheckpoint(path.join(model_dir, '{epoch:02d}.hdf5'), verbose=1)
+    ###
+    # in order to start tensorboard call:
+    # tensorboard --logdir=logs/ --port=<any free port>
+    ###
+    tensorboard = TensorBoard(log_dir="logs/{}".format(time.time()))
     callbacks = [
         checkpoint,
+        tensorboard
     ]
 
     step_size = int((image_net.captions_num / base_configuration['batch_size']) + .5)
