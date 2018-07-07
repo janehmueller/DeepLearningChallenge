@@ -11,6 +11,7 @@ from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
 
 from src.config import base_configuration
+from src.file_loader import File
 from src.word_vector import WordVector
 
 
@@ -111,6 +112,9 @@ class TextPreprocessor(object):
         max_idx = self.one_hot_encoding_size
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
 
+    def decode_caption(self, one_hot_caption):
+        return self.decode_captions(np.asarray([one_hot_caption]))[0]
+
     def decode_captions(self, one_hot_captions: np.ndarray) -> List[str]:
         """
         Decodes one-hot encoded captions into a list of captions as string.
@@ -168,16 +172,15 @@ class TextPreprocessor(object):
 
 
 if __name__ == "__main__":
-    with open("data/annotations/pretty_train.json") as file:
-        data = json.load(file)
-        data = [annotation["caption"] for annotation in data["annotations"]]
+    file_loader = File.load(base_configuration['selected_dataset'])
+    captions = file_loader.captions()
+    tp = TextPreprocessor()
+    tp.process_captions(captions)
+    [print(tp.decode_caption(tp.encode_caption(cap))) for cap in captions[:10]]
 
-        tp = TextPreprocessor()
-        tp.process_captions([data])
-
-        model = Sequential()
-        [model.add(layer) for layer in tp.word_embedding_layer()]
-
-        model.compile(loss="mean_squared_error", optimizer=SGD(lr=1e-4))
-        tmp = tp.encode_captions([TextPreprocessor.eos_token()])[0][0]
-        print(model.predict(np.array([tmp])))
+        # model = Sequential()
+        # [model.add(layer) for layer in tp.word_embedding_layer()]
+        #
+        # model.compile(loss="mean_squared_error", optimizer=SGD(lr=1e-4))
+        # tmp = tp.encode_captions([TextPreprocessor.eos_token()])[0][0]
+        # print(model.predict(np.array([tmp])))
