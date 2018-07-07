@@ -19,8 +19,9 @@ def prediction_data(images, file_loader):
 
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
-    model_epoch = 5
-    model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
+    model_epoch = "pawel"
+    #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
+    model_path = path.join(model_dir, '{}.hdf5'.format(model_epoch))
 
     model = load_model(model_path)
 
@@ -28,8 +29,12 @@ def main():
     image_net = ImageNet(file_loader)
 
     prediction_data_generator = prediction_data(image_net.images, file_loader)
+    predictions = model.predict_generator(prediction_data_generator, steps=1)
 
-    model.predict_generator(prediction_data_generator)
+    pred_caption = predictions[0]  # TODO fix the repetirtion of result (RepeatVector!?)
+    caption_indices = np.argmin(pred_caption, axis=1)
+
+    print("Shape of predictions: {}".format(predictions.shape))
 
 
 if __name__ == '__main__':
