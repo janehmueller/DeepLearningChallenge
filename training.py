@@ -70,7 +70,7 @@ def main():
     model_list_add(sentence_model, text_preprocessor.word_embedding_layer())
 
     # Concatenation of image and word embedding models that is the input of the RNN model
-    rnn_input = Concatenate(axis=1)([func_image_model.output, sentence_model.output])
+    rnn_input = Concatenate(axis=1)([func_image_model, sentence_model.output])
 
     # RNN model that outputs time-step many predictions of captions
     rnn_model = Sequential()
