@@ -74,11 +74,13 @@ def main():
 
     # RNN model that outputs time-step many predictions of captions
     rnn_model = Sequential()
-    rnn_model.add(rnn_input)
     model_list_add(rnn_model, rnn_net.layers)
-    rnn_model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
+    func_rnn_model = rnn_model(rnn_input)
+    func_rnn_model = func_rnn_model(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
+    # rnn_model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
+    # rnn_model.add(rnn_input)
 
-    model = Model(inputs=model_input, outputs=rnn_model.output)
+    model = Model(inputs=model_input, outputs=func_rnn_model)
 
     model = multi_gpu_model(model)
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
