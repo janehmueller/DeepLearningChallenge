@@ -72,6 +72,10 @@ def main():
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
     checkpoint = ModelCheckpoint(path.join(model_dir, '{epoch:02d}.hdf5'), verbose=1)
+    ###
+    # in order to start tensorboard call:
+    # tensorboard --logdir=logs/ --port=<any free port>
+    ###
     tensorboard = TensorBoard(log_dir="logs/{}".format(time.time()))
     callbacks = [
         checkpoint,
