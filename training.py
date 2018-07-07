@@ -6,7 +6,7 @@ from os import path, makedirs
 import time
 
 from keras import Sequential, Model, Input
-from keras.layers import Dense, TimeDistributed, Concatenate
+from keras.layers import Dense, TimeDistributed, Concatenate, RepeatVector
 import numpy as np
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
@@ -65,20 +65,26 @@ def main():
     func_image_model = image_model(inception.output)
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
-    sentence_model = text_preprocessor.word_embedding_layer()
+    sentence_input = Input(shape=[None])
+    sentence_model = text_preprocessor.word_embedding_layer()(sentence_input)
 
     # Concatenation of image and word embedding models that is the input of the RNN model
-    func_rnn_input = Concatenate(axis=1)([func_image_model, sentence_model.output])
+    func_rnn_input = Concatenate(axis=1)([func_image_model, sentence_model])
 
     # RNN model that outputs time-step many predictions of captions
-    rnn_model = Sequential()
-    model_list_add(rnn_model, rnn_net.layers)
-    func_rnn_model = rnn_model(func_rnn_input)
+    # rnn_model = Sequential()
+    func_rnn_model = RepeatVector(base_configuration['sizes']['repeat_vector_length'])(func_rnn_input)
+    func_rnn_model = rnn_net.GRUclass(base_configuration['sizes']['rnn_output'],
+                     return_sequences=True,
+                     dropout=.2,
+                     recurrent_dropout=.2)(func_rnn_model)
+    # model_list_add(rnn_model, rnn_net.layers)
+    # func_rnn_model = rnn_model(func_rnn_input)
     func_rnn_model = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(func_rnn_model)
     # rnn_model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
     # rnn_model.add(rnn_input)
 
-    model = Model(inputs=[inception_input, sentence_model.input], outputs=func_rnn_model)
+    model = Model(inputs=[inception_input, sentence_input], outputs=func_rnn_model)
 
     model = multi_gpu_model(model)
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
