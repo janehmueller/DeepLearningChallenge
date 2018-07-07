@@ -10,6 +10,8 @@ from src.config import base_configuration
 from src.file_loader import File
 import numpy as np
 
+from util.threading import LockedIterator
+
 
 class ImageNet:
     def __init__(self, file_loader: File):
@@ -33,10 +35,13 @@ class ImageNet:
 
     @property
     def images(self):
-        while True:
-            print('RESTARTING IMAGE GENERATOR')
-            for file_id, path in self.file_loader.id_file_map.items():
-                yield (file_id, self.preprocess_image(path))
+        def generator():
+            while True:
+                print('RESTARTING IMAGE GENERATOR')
+                for file_id, path in self.file_loader.id_file_map.items():
+                    yield (file_id, self.preprocess_image(path))
+
+        return LockedIterator(generator())
 
     @property
     def images_num(self):
