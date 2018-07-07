@@ -8,6 +8,8 @@ from src.file_loader import File
 from src.image_net import ImageNet
 from src.text_preprocessing import TextPreprocessor
 
+from util.loss import categorical_crossentropy_from_logits
+
 
 processed_images = []
 
@@ -27,14 +29,14 @@ def prediction_data(images, file_loader):
         i += 1
 
 def main():
-    model_dir = path.join(base_configuration['tmp_path'], 'model-saves.1530968763')
-    model_path = path.join(model_dir, "14.hdf5")
+    model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
+    model_path = path.join(model_dir, "01.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()
     text_preprocessor.deserialize(model_dir)
 
-    model = load_model(model_path)
+    model = load_model(model_path, compile=False)
 
     file_loader = File.load(base_configuration['selected_dataset'])
     image_net = ImageNet(file_loader)
@@ -44,7 +46,7 @@ def main():
 
     captions_indices = [np.argmax(pred_caption, axis=1) for pred_caption in predictions]
 
-    sentences = [[text_preprocessor.inverse_vocab[caption] for caption in caption_indices] for caption_indices in captions_indices]
+    sentences = [[text_preprocessor.inverse_vocab.get(caption, None) for caption in caption_indices] for caption_indices in captions_indices]
     for i, s in enumerate(sentences):
         print(file_loader.id_file_map[processed_images[i]])
         print(s)

@@ -41,8 +41,10 @@
     }
   },
   "model_hyper_params": {
-    "optimizer": "adadelta",
-    "metrics": []
+    "optimizer": "adam",
+    "metrics": [
+      "accuracy"
+    ]
   },
   "sizes": {
     "rnn_input": 300,
