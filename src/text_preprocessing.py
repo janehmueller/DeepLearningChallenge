@@ -175,7 +175,7 @@ if __name__ == "__main__":
     file_loader = File.load(base_configuration['selected_dataset'])
     captions = file_loader.captions()
     tp = TextPreprocessor()
-    tp.process_captions(captions)
+    tp.process_captions([captions])
     [print(tp.decode_caption(tp.encode_caption(cap))) for cap in captions[:10]]
 
         # model = Sequential()
