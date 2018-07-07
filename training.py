@@ -65,8 +65,6 @@ def main():
     model_list_add(model, rnn_net.layers)
     model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
 
-    # model = multi_gpu_model(model)
-
     model.compile(loss='categorical_crossentropy', **base_configuration['model_hyper_params'])
 
     func_model = model(inception.output)
