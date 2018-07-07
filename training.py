@@ -37,7 +37,7 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
         for caption in file_loader.id_caption_map[image_id]:
             if i >= batch_size:
                 # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-                yield ([batch_images, batch_output_captions], batch_output_captions)
+                yield ([batch_images, batch_output_captions[0]], batch_output_captions)
                 i = 0
             batch_images[i] = image
             batch_output_captions[i] = text_preprocessor.encode_caption(caption)
@@ -65,7 +65,8 @@ def main():
     func_image_model = image_model(inception.output)
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
-    sentence_input = Input(shape=[base_configuration['sizes']['repeat_vector_length'], text_preprocessor.one_hot_encoding_size])
+    # base_configuration['sizes']['repeat_vector_length']
+    sentence_input = Input(shape=[text_preprocessor.one_hot_encoding_size])
     sentence_model = text_preprocessor.word_embedding_layer()(sentence_input)
 
     # Concatenation of image and word embedding models that is the input of the RNN model
