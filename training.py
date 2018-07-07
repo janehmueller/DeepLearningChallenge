@@ -66,7 +66,7 @@ def main():
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
     sentence_model = Sequential()
-    model_list_add(sentence_model, [Input(shape=None)])
+    model_list_add(sentence_model, [Input(shape=[None])])
     model_list_add(sentence_model, text_preprocessor.word_embedding_layer())
 
     # Concatenation of image and word embedding models that is the input of the RNN model

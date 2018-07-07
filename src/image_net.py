@@ -5,7 +5,7 @@ from keras import Sequential
 from keras.layers import Dense, BatchNormalization
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
-from keras.applications import InceptionV3
+from keras.applications import InceptionV3, inception_v3
 
 from src.config import base_configuration
 from src.file_loader import File
@@ -51,7 +51,9 @@ class ImageNet:
     @staticmethod
     def preprocess_image(path):
         loaded_image = load_img(path, target_size=(299, 299))
-        return img_to_array(loaded_image)
+        image_array = img_to_array(loaded_image)
+        image_array = inception_v3.preprocess_input(image_array)
+        return image_array
 
     @property
     def images(self):
