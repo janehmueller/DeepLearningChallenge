@@ -27,8 +27,8 @@ def prediction_data(images, file_loader):
         i += 1
 
 def main():
-    model_dir = path.join(base_configuration['tmp_path'], 'model-saves.1530967725')
-    model_path = path.join(model_dir, "02.hdf5")
+    model_dir = path.join(base_configuration['tmp_path'], 'model-saves.1530968763')
+    model_path = path.join(model_dir, "14.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()
