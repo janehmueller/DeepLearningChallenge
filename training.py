@@ -65,17 +65,15 @@ def main():
     func_image_model = image_model(inception.output)
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
-    sentence_model = Sequential()
-    model_list_add(sentence_model, [Input(shape=[None])])
-    model_list_add(sentence_model, text_preprocessor.word_embedding_layer())
+    func_sentence_model = text_preprocessor.word_embedding_layer()(Input(shape=[None]))
 
     # Concatenation of image and word embedding models that is the input of the RNN model
-    rnn_input = Concatenate(axis=1)([func_image_model, sentence_model.output])
+    func_rnn_input = Concatenate(axis=1)([func_image_model, func_sentence_model])
 
     # RNN model that outputs time-step many predictions of captions
     rnn_model = Sequential()
     model_list_add(rnn_model, rnn_net.layers)
-    func_rnn_model = rnn_model(rnn_input)
+    func_rnn_model = rnn_model(func_rnn_input)
     func_rnn_model = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(func_rnn_model)
     # rnn_model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
     # rnn_model.add(rnn_input)
