@@ -57,6 +57,15 @@ class TextPreprocessor(object):
         self._vocab = value
         self.inverse_vocab = dict([(v, k) for k, v in self._vocab.items()])
 
+    @property
+    def one_hot_encoding_size(self):
+        """
+        Add 1 since the vocab does not contain 0 as index. Therefore a vocab with size 1 needs a vector with the shape
+        (2 = vocab_size + 1) for its one-hot encoding.
+        :return:
+        """
+        return self.vocab_size() + 1
+
     def eos_token_index(self) -> int:
         """
         Returns the index of the end-of-string token in the vocabulary
@@ -94,7 +103,7 @@ class TextPreprocessor(object):
         captions_indices = np.array(list(itertools.zip_longest(*captions_indices, fillvalue=0))).T
         captions_indices = captions_indices[:-1]
 
-        max_idx = len(self.vocab) + 1
+        max_idx = self.one_hot_encoding_size
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
 
     def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
@@ -138,8 +147,7 @@ class TextPreprocessor(object):
         if not self.word_vectors:
             self.word_vectors = WordVector(self.vocab, self.word_vector_type)
         output_size = self.word_vectors.embedding_size()
-        input_size = self.vocab_size() + 1  # add 1 since the vocab does not contain 0 as index (so a vocab with size 1
-                                            # needs a vector with 2 elements for its one-hot encoding)
+        input_size = self.one_hot_encoding_size
 
         sorted_vocab = list(self.vocab.items())
         sorted_vocab.sort(key=lambda x: x[1])
