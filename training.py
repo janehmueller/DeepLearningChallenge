@@ -65,7 +65,7 @@ def main():
     model.compile(**base_configuration['model_hyper_params'])
 
     func_model = model.model(inception.output)
-    model = Model(inputs=inception.input, outputs=func_model.output)
+    model = Model(inputs=inception.input, outputs=func_model)
 
     model = multi_gpu_model(model)
     model.compile(**base_configuration['model_hyper_params'])
