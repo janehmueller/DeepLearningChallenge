@@ -65,7 +65,7 @@ def main():
     func_image_model = image_model(inception.output)
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
-    sentence_input = Input(shape=[None])
+    sentence_input = Input(shape=[base_configuration['sizes']['repeat_vector_length'], text_preprocessor.one_hot_encoding_size])
     sentence_model = text_preprocessor.word_embedding_layer()(sentence_input)
 
     # Concatenation of image and word embedding models that is the input of the RNN model
