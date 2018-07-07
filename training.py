@@ -60,15 +60,15 @@ def main():
     # Image model that has the InceptionV3 as input and outputs an RNN input size sized vector
     image_model = Sequential()
     inception, image_net_layers = image_net.inception_model
-    model_input = inception.input
+    inception_input = inception.input
     model_list_add(image_model, image_net_layers)
     func_image_model = image_model(inception.output)
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
-    func_sentence_model = text_preprocessor.word_embedding_layer()(Input(shape=[None]))
+    sentence_model = text_preprocessor.word_embedding_layer()
 
     # Concatenation of image and word embedding models that is the input of the RNN model
-    func_rnn_input = Concatenate(axis=1)([func_image_model, func_sentence_model])
+    func_rnn_input = Concatenate(axis=1)([func_image_model, sentence_model.output])
 
     # RNN model that outputs time-step many predictions of captions
     rnn_model = Sequential()
@@ -78,7 +78,7 @@ def main():
     # rnn_model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
     # rnn_model.add(rnn_input)
 
-    model = Model(inputs=model_input, outputs=func_rnn_model)
+    model = Model(inputs=[inception_input, sentence_model.input], outputs=func_rnn_model)
 
     model = multi_gpu_model(model)
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
