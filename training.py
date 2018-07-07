@@ -76,7 +76,7 @@ def main():
     rnn_model = Sequential()
     model_list_add(rnn_model, rnn_net.layers)
     func_rnn_model = rnn_model(rnn_input)
-    func_rnn_model = func_rnn_model(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
+    func_rnn_model = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(func_rnn_model)
     # rnn_model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
     # rnn_model.add(rnn_input)
 
