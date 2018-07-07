@@ -41,7 +41,6 @@
     }
   },
   "model_hyper_params": {
-    "loss": "binary_crossentropy",
     "optimizer": "adadelta",
     "metrics": []
   },

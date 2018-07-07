@@ -68,7 +68,7 @@ def main():
 
     model = multi_gpu_model(model)
 
-    model.compile(**base_configuration['model_hyper_params'])
+    model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
