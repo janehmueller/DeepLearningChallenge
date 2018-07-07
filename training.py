@@ -46,7 +46,7 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
 
 def main():
     timestamp = str(round(time.time()))
-    model_dir = path.join(base_configuration['tmp_path'], 'model-saves.' + timestamp)
+    model_dir = path.join(base_configuration['tmp_path'], 'model-saves') #.' + timestamp)
     makedirs(model_dir, exist_ok=True)
 
     file_loader = File.load(base_configuration['selected_dataset'])
@@ -66,7 +66,7 @@ def main():
 
     # model = multi_gpu_model(model)
 
-    model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
+    model.compile(loss='categorical_crossentropy', **base_configuration['model_hyper_params'])
 
     func_model = model(inception.output)
     model = Model(inputs=inception.input, outputs=func_model)
@@ -92,7 +92,7 @@ def main():
                         steps_per_epoch=step_size,
                         callbacks=callbacks,
                         use_multiprocessing=False,
-                        workers=0,
+                        workers=1,
                         **base_configuration['fit_params'])
 
     model.save(path.join(model_dir, 'model-all.hdf5'), overwrite=True)

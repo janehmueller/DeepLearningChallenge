@@ -15,8 +15,8 @@ processed_images = []
 
 def prediction_data(images, file_loader):
     batch_size = base_configuration['batch_size']
-    image_shape = 299 * 299 * 3
-    batch_images = np.zeros(shape=[batch_size, image_shape])
+    image_shape = [299, 299, 3]
+    batch_images = np.zeros(shape=[batch_size] + image_shape)
     i = 0
     for image_id, image in images:
         if i >= batch_size:
@@ -30,7 +30,7 @@ def prediction_data(images, file_loader):
 
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
-    model_path = path.join(model_dir, "01.hdf5")
+    model_path = path.join(model_dir, "02.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()

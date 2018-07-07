@@ -2,6 +2,7 @@ import itertools
 
 import keras
 from keras import Sequential
+from keras.initializers import RandomNormal
 from keras.layers import Dense, BatchNormalization
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
@@ -41,7 +42,8 @@ class ImageNet:
             layer.trainable = False
 
         self.layers.append(BatchNormalization(axis=-1))
-        self.layers.append(Dense(base_configuration['sizes']['rnn_input']))
+        self.layers.append(Dense(base_configuration['sizes']['rnn_input'],
+                                 kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
         # TODO: regularizer and initializer
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer

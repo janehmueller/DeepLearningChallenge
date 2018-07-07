@@ -41,7 +41,7 @@
     }
   },
   "model_hyper_params": {
-    "optimizer": "adam",
+    "optimizer": "sgd",
     "metrics": [
       "accuracy"
     ]
@@ -57,5 +57,5 @@
   },
   "eos_token": "zeornd",
   "batch_size": 64,
-  "image_input_num": 100
+  "image_input_num": 1000
 }
