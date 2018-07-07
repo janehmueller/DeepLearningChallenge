@@ -2,6 +2,7 @@ import itertools
 
 from keras.callbacks import ModelCheckpoint
 from os import path, makedirs
+import time
 
 from keras import Sequential
 from keras.layers import Dense
@@ -35,7 +36,8 @@ def training_data(images, text_preprocessor, file_loader):
 
 
 def main():
-    model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
+    timestamp = str(round(time.time()))
+    model_dir = path.join(base_configuration['tmp_path'], 'model-saves.' + timestamp)
     makedirs(model_dir, exist_ok=True)
 
     file_loader = File.load(base_configuration['selected_dataset'])
