@@ -12,21 +12,34 @@ from util.loss import categorical_crossentropy_from_logits
 
 
 processed_images = []
+text_preprocessor: TextPreprocessor = None
+
 
 def prediction_data(images, file_loader):
     batch_size = base_configuration['batch_size']
-    image_shape = 299 * 299 * 3
-    batch_images = np.zeros(shape=[batch_size, image_shape])
+    image_shape = [299, 299, 3]
+    batch_images = np.zeros(shape=[batch_size] + image_shape)
+    one_hot_size = text_preprocessor.one_hot_encoding_size
+    batch_output_captions = np.zeros(shape=[batch_size, one_hot_size])
     i = 0
     for image_id, image in images:
-        if i >= batch_size:
-            # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-            yield batch_images
-            i = 0
+        # if i >= batch_size:
+            # # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
+            # yield batch_images
+            # i = 0
+            for caption in file_loader.id_caption_map[image_id]:
+                if i >= batch_size:
+                    # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
+                    yield ([batch_images, batch_output_captions], batch_output_captions)
+                    i = 0
+                batch_images[i] = image
+                batch_output_captions[i] = text_preprocessor.encode_caption(caption)[0]
+                i += 1
 
-        processed_images.append(image_id)
-        batch_images[i] = image
-        i += 1
+            processed_images.append(image_id)
+            batch_images[i] = image
+        # i += 1
+
 
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
