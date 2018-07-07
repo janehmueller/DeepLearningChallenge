@@ -54,7 +54,7 @@ def main():
     text_preprocessor.process_captions(file_loader.id_caption_map.values())
 
     model = Sequential()
-    inception, image_net_layers = image_net.inception
+    inception, image_net_layers = image_net.inception_model
     model_list_add(model, image_net_layers)
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
