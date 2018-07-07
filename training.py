@@ -22,7 +22,7 @@ def model_list_add(model: Sequential, layer_list):
         model.add(new_layer)
 
 
-def training_data(images: Generator[tuple], text_preprocessor: TextPreprocessor, file_loader: File):
+def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File):
     batch_size = base_configuration['batch_size']
     image_shape = 299 * 299 * 3
     batch_images = np.zeros(shape=[batch_size, image_shape])
@@ -33,10 +33,12 @@ def training_data(images: Generator[tuple], text_preprocessor: TextPreprocessor,
     for image_id, image in images:
         for caption in file_loader.id_caption_map[image_id]:
             if i >= batch_size:
-                yield (np.copy(batch_images), np.copy(batch_captions))
+                # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
+                yield (batch_images, batch_captions)
                 i = 0
             batch_images[i] = image
             batch_captions[i] = text_preprocessor.encode_caption(caption)
+            i += 1
 
 
 def main():
