@@ -166,8 +166,12 @@ class TextPreprocessor(object):
 
         biases = np.zeros(output_size)
 
-        layer = Dense(output_size, input_shape=[input_size], weights=[np.asarray(word_vector_weights), biases])
-        layer.trainable = False
+        layer = Dense(
+            output_size,
+            input_shape=[input_size],
+            weights=[np.asarray(word_vector_weights), biases],
+            trainable=False
+        )
         return [layer]
 
 
