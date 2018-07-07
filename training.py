@@ -60,13 +60,13 @@ def main():
     # Image model that has the InceptionV3 as input and outputs an RNN input size sized vector
     image_model = Sequential()
     inception, image_net_layers = image_net.inception_model
+    model_input = inception.input
     model_list_add(image_model, image_net_layers)
     func_image_model = image_model(inception.output)
-    model_input = inception.input
 
     # Word embedding model that has one-hot encoding as input and outputs an RNN input size sized vector
     sentence_model = Sequential()
-    # model_list_add(sentence_model, [Input(shape=None)])
+    model_list_add(sentence_model, [Input(shape=None)])
     model_list_add(sentence_model, text_preprocessor.word_embedding_layer())
 
     # Concatenation of image and word embedding models that is the input of the RNN model
