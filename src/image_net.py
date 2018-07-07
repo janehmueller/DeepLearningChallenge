@@ -4,19 +4,15 @@ import keras
 from keras import Sequential
 from keras.layers import Dense, BatchNormalization
 from keras.optimizers import SGD
-from keras.preprocessing.image import load_img, img_to_array
 from keras.applications import InceptionV3
 
 from src.config import base_configuration
-from src.file_loader import File
 import numpy as np
 
-from util.threading import LockedIterator
 
 
 class ImageNet:
-    def __init__(self, file_loader: File):
-        self.file_loader = file_loader
+    def __init__(self):
         self.layers = []
         self.inception = None
 
@@ -48,34 +44,8 @@ class ImageNet:
 
         return self.inception, self.layers
 
-    @staticmethod
-    def preprocess_image(path):
-        loaded_image = load_img(path, target_size=(299, 299))
-        return img_to_array(loaded_image)
-
-    @property
-    def images(self):
-        def generator():
-            while True:
-                print('RESTARTING IMAGE GENERATOR')
-                for file_id, path in self.file_loader.id_file_map.items():
-                    yield (file_id, self.preprocess_image(path))
-
-        return LockedIterator(generator())
-
-    @property
-    def images_num(self):
-        return len(self.file_loader.id_file_map)
-
-    @property
-    def captions_num(self):
-        return sum((len(self.file_loader.id_caption_map[key]) for key in self.file_loader.id_file_map.keys()))
-
-
 if __name__ == "__main__":
-    # file_loader = File.load(base_configuration['selected_dataset'])
-
-    image_net = ImageNet(None)
+    image_net = ImageNet()
 
     model = Sequential()
     [model.add(layer) for layer in image_net.layers]
