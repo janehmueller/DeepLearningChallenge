@@ -10,12 +10,17 @@ from keras.layers import Dense, TimeDistributed
 import numpy as np
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
+from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
 
 from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from src.text_preprocessing import TextPreprocessor
+
+
+def categorical_crossentropy_from_logits(y_true, y_pred):
+    return softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred)
 
 
 def model_list_add(model: Sequential, layer_list):
