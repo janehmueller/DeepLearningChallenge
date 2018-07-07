@@ -2,6 +2,7 @@ from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional
 from keras.backend.tensorflow_backend import _is_current_explicit_device, _get_available_gpus
 
 from src.config import base_configuration
+from util.checkGPU import onGPU
 
 
 class RNNNet:
@@ -24,10 +25,9 @@ class RNNNet:
 
     @property
     def GRUclass(self):
-        if not _is_current_explicit_device('CPU') and len(_get_available_gpus()) > 0:
+        if onGPU:
             print('On GPU, using CuDNNGRU layer')
-            #return CuDNNGRU
-            return LSTM
+            return CuDNNGRU
         else:
             print('On CPU, using GRU layer')
             return GRU
