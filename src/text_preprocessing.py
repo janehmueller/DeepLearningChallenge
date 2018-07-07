@@ -1,5 +1,6 @@
 import itertools
 import json
+from os import path
 from typing import List, Dict
 
 import numpy as np
@@ -17,7 +18,7 @@ class TextPreprocessor(object):
     """
     Preprocessor that tokenizes and one-hot encodes captions.
     """
-    vocab_file: str = "vocab.json"
+    VOCAB_FILE: str = "vocab.json"
     tokenizer: Tokenizer = None
     _vocab: Dict[str, int] = None
     inverse_vocab: Dict[int, str] = None
@@ -126,14 +127,12 @@ class TextPreprocessor(object):
 
         return [" ".join(caption) for caption in decoded_captions]
 
-    def serialize(self):
-        path = base_configuration["tmp_path"] + "/" + self.vocab_file
-        with open(path, "w") as file:
+    def serialize(self, store_path):
+        with open(path.join(store_path, self.VOCAB_FILE), "w") as file:
             json.dump(self.vocab, file)
 
-    def deserialize(self):
-        path = base_configuration["tmp_path"] + "/" + self.vocab_file
-        with open(path, "r") as file:
+    def deserialize(self, store_path):
+        with open(path.join(store_path, self.VOCAB_FILE), "r") as file:
             self.vocab = json.load(file)
             self.tokenizer.word_index = self.vocab
 

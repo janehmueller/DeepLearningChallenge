@@ -6,7 +6,7 @@ from os import path, makedirs
 import time
 
 from keras import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, TimeDistributed
 import numpy as np
 from keras.utils import multi_gpu_model
 
@@ -52,12 +52,13 @@ def main():
     rnn_net = RNNNet()
     text_preprocessor = TextPreprocessor()
     text_preprocessor.process_captions(file_loader.id_caption_map.values())
+    text_preprocessor.serialize(model_dir)
 
     model = Sequential()
     model_list_add(model, image_net.layers)
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
-    model.add(Dense(text_preprocessor.one_hot_encoding_size))
+    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size)))
 
     model = multi_gpu_model(model)
 

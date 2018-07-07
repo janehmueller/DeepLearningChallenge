@@ -1,4 +1,4 @@
-from keras.layers import RepeatVector, CuDNNGRU, GRU
+from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional
 from keras.backend.tensorflow_backend import _is_current_explicit_device, _get_available_gpus
 
 from src.config import base_configuration
@@ -13,11 +13,10 @@ class RNNNet:
             base_configuration['sizes']['repeat_vector_length']
         ))
 
-        layers.append(self.GRUclass(
+        layers.append(Bidirectional(self.GRUclass(
             base_configuration['sizes']['rnn_output'],
-            return_sequences=True,
-            stateful=False
-        ))
+            return_sequences=True
+        )))
 
         return layers
 

@@ -56,5 +56,5 @@
   },
   "eos_token": "zeornd",
   "batch_size": 64,
-  "image_input_num": 0
+  "image_input_num": 100
 }
