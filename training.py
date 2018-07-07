@@ -64,7 +64,7 @@ def main():
 
     model.compile(**base_configuration['model_hyper_params'])
 
-    func_model = model.model(inception)
+    func_model = model.model(inception.output)
     model = Model(inputs=inception.input, outputs=func_model.output)
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
