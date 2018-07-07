@@ -5,6 +5,7 @@ from keras import Sequential
 from keras.layers import Dense
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
+from keras.applications import InceptionV3
 
 from src.config import base_configuration
 from src.file_loader import File
@@ -27,6 +28,23 @@ class ImageNet:
         ))
 
         return layers
+
+    @property
+    def inception_model(self) -> InceptionV3:
+        # Initialize with imagenet weights
+        model = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
+
+        # Fix weights
+        for layer in image_model.layers:
+            layer.trainable = False
+
+        model.add(BatchNormalization(axis=-1))
+        model.add(Dense(base_configuration['sizes']['rnn_input']))
+        # TODO: regularizer and initializer
+        # kernel_regularizer=self.regularizer,
+        # kernel_initializer=self.initializer
+
+        return model
 
     @staticmethod
     def preprocess_image(path):
