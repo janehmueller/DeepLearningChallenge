@@ -84,9 +84,13 @@ class TextPreprocessor(object):
 
     def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
         one_hot = np.zeros([len(caption_indices), one_hot_size])
-        one_hot[np.arange(len(caption_indices)), caption_indices] = 1
+
+        for index, value in enumerate(caption_indices):
+            one_hot[index][value] = bool(value)
+
+        # one_hot[np.arange(len(caption_indices)), caption_indices] = 1
         # Transform padding one-hot encoding with a 0-filled vector
-        return np.pad(one_hot[:, 1:], [1, 0], mode='constant', constant_values=0)[1:]
+        return one_hot
 
     def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
         """
@@ -105,11 +109,6 @@ class TextPreprocessor(object):
 
         max_idx = self.one_hot_encoding_size
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
-
-    def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
-        one_hot = np.zeros([len(caption_indices), one_hot_size])
-        one_hot[np.arange(len(caption_indices)), caption_indices] = 1
-        return np.pad(one_hot[:, 1:], [1, 0], mode='constant', constant_values=0)[1:]
 
     def decode_captions(self, one_hot_captions: np.ndarray) -> List[str]:
         """
