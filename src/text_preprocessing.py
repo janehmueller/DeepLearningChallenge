@@ -170,7 +170,7 @@ class TextPreprocessor(object):
         embedding_tensor = Embedding(
             input_dim=input_size,
             output_dim=output_size,
-            weights=[np.asarray(word_vector_weights), biases],
+            weights=[np.asarray(word_vector_weights)],
             trainable=False
         )(sentence_input)
 
