@@ -44,9 +44,7 @@ class ImageNet:
         self.layers.append(BatchNormalization(axis=-1))
         self.layers.append(Dense(base_configuration['sizes']['rnn_input'],
                                  kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
-        self.layers.append(RepeatVector(
-            base_configuration['sizes']['repeat_vector_length']
-        ))
+        self.layers.append(RepeatVector(1))
         # TODO: regularizer and initializer
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer
