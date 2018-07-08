@@ -81,8 +81,8 @@ class TextPreprocessor(object):
         self.tokenizer.fit_on_texts(flat_captions)
         self.vocab = self.tokenizer.word_index
 
-    def encode_caption(self, caption):
-        return self.encode_captions([caption])[0]
+    def encode_caption(self, caption, one_hot=True):
+        return self.encode_captions([caption], one_hot)[0]
 
     def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
         one_hot = np.zeros([len(caption_indices), one_hot_size])
@@ -94,7 +94,7 @@ class TextPreprocessor(object):
         # Transform padding one-hot encoding with a 0-filled vector
         return one_hot
 
-    def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
+    def encode_captions(self, captions: List[str], one_hot=True) -> List[np.ndarray]:
         """
         Tokenizes and one-hot encodes captions. They are returned as numpy array with the shape
         (num_captions, size_of_longest_caption, vocab_size + 1). Padding is encoded as zero-vector.
@@ -108,6 +108,9 @@ class TextPreprocessor(object):
         captions_indices.append([0] * base_configuration['sizes']['repeat_vector_length'])
         captions_indices = np.array(list(itertools.zip_longest(*captions_indices, fillvalue=0))).T
         captions_indices = captions_indices[:-1]
+
+        if not one_hot:
+           return captions_indices
 
         max_idx = self.one_hot_encoding_size
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
