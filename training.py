@@ -82,9 +82,13 @@ def main():
         input_ = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "RNN Input Shape: "))(input_)
         input_ = Lambda(lambda x: tf.Print(x, [x], "RNN Input: "))(input_)
         rnn_out = rnn(input_)
+        rnn_out = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "RNN Output Shape: "))(rnn_out)
+        rnn_out = Lambda(lambda x: tf.Print(x, [x], "RNN Output: "))(rnn_out)
         input_ = rnn_out
 
     sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(rnn_out)
+    sequence_output = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "TD Dense Output Shape: "))(sequence_output)
+    sequence_output = Lambda(lambda x: tf.Print(x, [x], "TD Dense Output: "))(sequence_output)
 
     model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
 
