@@ -7,7 +7,7 @@ from os import path, makedirs
 import time
 
 from keras import Sequential, Model, Input
-from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization, Lambda
+from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization
 import numpy as np
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
