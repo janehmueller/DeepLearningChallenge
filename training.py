@@ -1,12 +1,13 @@
 import itertools
 from typing import Generator
 
+import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 from os import path, makedirs
 import time
 
 from keras import Sequential, Model, Input
-from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization
+from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization, Lambda
 import numpy as np
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
@@ -30,7 +31,7 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
     batch_size = base_configuration['batch_size']
     image_shape = [299, 299, 3]
     batch_images = np.zeros(shape=[batch_size] + image_shape)
-    caption_length = base_configuration['sizes']['repeat_vector_length'] + 1
+    caption_length = base_configuration['sizes']['repeat_vector_length']
     one_hot_size = text_preprocessor.one_hot_encoding_size
     batch_captions = np.zeros(shape=[batch_size, caption_length, one_hot_size])
     batch_input_captions = np.zeros(shape=[batch_size, caption_length])
@@ -69,6 +70,8 @@ def main():
     sentence_input, sentence_embedding = text_preprocessor.word_embedding_layer()
 
     sequence_input = Concatenate(axis=1)([image_embedding, sentence_embedding])
+    sequence_input = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "Concatenate Output Shape: "))(sequence_input)
+    sequence_input = Lambda(lambda x: tf.Print(x, [x], "Concatenate Output: "))(sequence_input)
 
     # RNN Here
     input_ = sequence_input
@@ -84,11 +87,7 @@ def main():
     if onGPU and countGPU is None:
         model = multi_gpu_model(model)
 
-    print(model.summary())
-
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
-
-    print(model.summary())
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
