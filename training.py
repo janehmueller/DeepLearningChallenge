@@ -76,7 +76,11 @@ def main():
     # RNN Here
     input_ = sequence_input
     for rnn in rnn_net.layers:
+        input_ = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "Batch Normalization Input Shape: "))(input_)
+        input_ = Lambda(lambda x: tf.Print(x, [x], "Batch Normalization Input: "))(input_)
         input_ = BatchNormalization(axis=-1)(input_)
+        input_ = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "RNN Input Shape: "))(input_)
+        input_ = Lambda(lambda x: tf.Print(x, [x], "RNN Input: "))(input_)
         rnn_out = rnn(input_)
         input_ = rnn_out
 
