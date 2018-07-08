@@ -5,8 +5,8 @@ from keras.callbacks import ModelCheckpoint
 from os import path, makedirs
 import time
 
-from keras import Sequential, Model
-from keras.layers import Dense, TimeDistributed
+from keras import Sequential, Model, Input
+from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization
 import numpy as np
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
@@ -58,17 +58,30 @@ def main():
     text_preprocessor.process_captions(file_loader.id_caption_map.values())
     text_preprocessor.serialize(model_dir)
 
-    model = Sequential()
-    inception, image_net_layers = image_net.inception_model
-    model_list_add(model, image_net_layers)
-    # model_list_add(model, text_preprocessor.word_embedding_layer()))
-    model_list_add(model, rnn_net.layers)
-    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
+    # Build Model Layers
+    # Image Model
+    image_model, image_embedding = image_net.inception_model
+    image_input = image_model.input
 
-    model.compile(loss='categorical_crossentropy', **base_configuration['model_hyper_params'])
+    # Sentence Model
+    sentence_input, sentence_embedding = text_preprocessor.word_embedding_layer()
 
-    func_model = model(inception.output)
-    model = Model(inputs=inception.input, outputs=func_model)
+    sequence_input = Concatenate(axis=1)([image_embedding, sentence_embedding])
+
+    # RNN Here
+    input_ = sequence_input
+    for rnn in rnn_net.layers:
+        input_ = BatchNormalization(axis=-1)(input_)
+        rnn_out = rnn(input_)
+        input_ = rnn_out
+
+    sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(rnn_out)
+
+    model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
+    model.compile(
+        loss=categorical_crossentropy_from_logits,
+        **base_configuration['model_hyper_params']
+    )
 
     if onGPU and countGPU != '1':
         model = multi_gpu_model(model)

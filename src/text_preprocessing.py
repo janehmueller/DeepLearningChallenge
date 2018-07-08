@@ -4,9 +4,9 @@ from os import path
 from typing import List, Dict
 
 import numpy as np
-from keras import Sequential
+from keras import Sequential, Input
 from keras.engine import Layer
-from keras.layers import Dense
+from keras.layers import Dense, Embedding
 from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
 
@@ -166,13 +166,15 @@ class TextPreprocessor(object):
 
         biases = np.zeros(output_size)
 
-        layer = Dense(
-            output_size,
-            input_shape=[input_size],
+        sentence_input = Input([None])
+        embedding_tensor = Embedding(
+            input_dim=input_size,
+            output_dim=output_size,
             weights=[np.asarray(word_vector_weights), biases],
             trainable=False
-        )
-        return [layer]
+        )(sentence_input)
+
+        return sentence_input, embedding_tensor
 
 
 if __name__ == "__main__":

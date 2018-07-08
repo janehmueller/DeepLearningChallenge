@@ -48,7 +48,13 @@ class ImageNet:
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer
 
-        return self.inception, self.layers
+        image_model, image_net_layers = self.inception, self.layers
+
+        prev_output = image_model.output
+        for layer in image_net_layers:
+            prev_output = layer(prev_output)
+
+        return image_model.output, prev_output
 
     @staticmethod
     def preprocess_image(path):
