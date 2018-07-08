@@ -9,7 +9,6 @@ from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.text_preprocessing import TextPreprocessor
-from training import training_data
 
 from util.loss import categorical_crossentropy_from_logits
 
@@ -33,13 +32,42 @@ def prediction_data(images, file_loader):
         i += 1
 
 
+def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File):
+    batch_size = base_configuration['batch_size']
+    image_shape = [299, 299, 3]
+    batch_images = np.zeros(shape=[batch_size] + image_shape)
+    caption_length = base_configuration['sizes']['repeat_vector_length']
+    caption_output_length = caption_length + 1
+    one_hot_size = text_preprocessor.one_hot_encoding_size
+    batch_captions = np.zeros(shape=[batch_size, caption_output_length, one_hot_size])
+    batch_input_captions = np.zeros(shape=[batch_size, caption_length])
+    i = 0
+    for image_id, image in images:
+        for caption in file_loader.id_caption_map[image_id]:
+            if i >= batch_size:
+                # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
+                yield ([batch_images, batch_input_captions], batch_captions)
+                i = 0
+            batch_images[i] = image
+            batch_captions[i] = text_preprocessor.encode_caption(caption)
+            batch_input_captions[i] = text_preprocessor.encode_caption(caption, one_hot=False)
+            processed_images.append(image_id)
+            batch_images[i] = image
+            i += 1
+
+
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> List[str]:
     caption_results = []
     for _ in range(0, 1):  # TODO: step_size
         input, label = next(data_generator)
-        captions_prediction_string = predict_batch(model, input, tp)
-        caption_results.extend(captions_prediction_string)
+        image, captions = input
+        tmp_results = []
+        for i in range(0, base_configuration['sizes']['repeat_vector_length'] + 1):
+            captions_prediction_string = predict_batch(model, [image, captions[:, :i, :]], tp)
+            tmp_results.append(captions_prediction_string)
 
+        tmp_results = [' '.join(list(caption_result)) for caption_result in list(zip(*tmp_results))]
+        caption_results.extend(tmp_results)
     return caption_results
 
 
@@ -50,7 +78,7 @@ def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> List[str]:
 
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
-    model_path = path.join(model_dir, "05.hdf5")
+    model_path = path.join(model_dir, "01.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()
@@ -67,9 +95,9 @@ def main():
     predictions = predict(model, prediction_data_generator, step_size, text_preprocessor)
 
     for i, prediction in enumerate(predictions):
-        #print(file_loader.id_file_map[processed_images[i]])
+        print(file_loader.id_file_map[processed_images[i]])
         print(prediction)
-        #print(file_loader.id_caption_map[processed_images[i]])
+        print(file_loader.id_caption_map[processed_images[i]])
 
     # predictions = model.predict_generator(prediction_data_generator, steps=1)
     # captions_indices = [np.argmax(pred_caption, axis=1) for pred_caption in predictions]
