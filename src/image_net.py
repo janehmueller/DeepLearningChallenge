@@ -54,7 +54,7 @@ class ImageNet:
         for layer in image_net_layers:
             prev_output = layer(prev_output)
 
-        return image_model.output, prev_output
+        return image_model, prev_output
 
     @staticmethod
     def preprocess_image(path):
