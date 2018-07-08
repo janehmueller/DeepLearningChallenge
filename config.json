@@ -53,7 +53,7 @@
   },
   "fit_params": {
     "epochs": 36,
-    "max_queue_size": 32
+    "max_queue_size": 24
   },
   "eos_token": "zeornd",
   "batch_size": 64,
