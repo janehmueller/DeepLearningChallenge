@@ -1,9 +1,10 @@
 import itertools
 
 import keras
+import tensorflow
 from keras import Sequential
 from keras.initializers import RandomNormal
-from keras.layers import Dense, BatchNormalization, RepeatVector
+from keras.layers import Dense, BatchNormalization, RepeatVector, Lambda
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
 from keras.applications import InceptionV3
@@ -44,7 +45,9 @@ class ImageNet:
         self.layers.append(BatchNormalization(axis=-1))
         self.layers.append(Dense(base_configuration['sizes']['rnn_input'],
                                  kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
+        self.layers.append(Lambda(lambda x: tensorflow.Print(x, [x], "Repeat Vector Input: ")))
         self.layers.append(RepeatVector(1))
+        self.layers.append(Lambda(lambda x: tensorflow.Print(x, [x], "Repeat Vector Output: ")))
         # TODO: regularizer and initializer
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer
