@@ -64,9 +64,10 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Li
         tmp_results = []
         for i in range(0, base_configuration['sizes']['repeat_vector_length'] + 1):
             captions_prediction_string = predict_batch(model, [image, captions], tp)
-            tmp_results.append(captions_prediction_string)
-
-        tmp_results = [' '.join(list(caption_result)) for caption_result in list(zip(*tmp_results))]
+            captions = tp.encode_captions(captions_prediction_string, one_hot=False)
+            # tmp_results.append(captions_prediction_string)
+            tmp_results = captions_prediction_string
+        # tmp_results = [' '.join(list(caption_result)) for caption_result in list(zip(*tmp_results))]
         caption_results.extend(tmp_results)
     return caption_results
 
