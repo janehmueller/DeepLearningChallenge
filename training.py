@@ -33,15 +33,17 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
     caption_length = base_configuration['sizes']['repeat_vector_length']
     one_hot_size = text_preprocessor.one_hot_encoding_size
     batch_captions = np.zeros(shape=[batch_size, caption_length, one_hot_size])
+    batch_input_captions = np.zeros(shape=[batch_size, caption_length])
     i = 0
     for image_id, image in images:
         for caption in file_loader.id_caption_map[image_id]:
             if i >= batch_size:
                 # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-                yield ([batch_images, batch_captions], batch_captions)
+                yield ([batch_images, batch_input_captions], batch_captions)
                 i = 0
             batch_images[i] = image
             batch_captions[i] = text_preprocessor.encode_caption(caption)
+            batch_input_captions[i] = text_preprocessor.encode_caption(caption, one_hot=False)
             i += 1
 
 
