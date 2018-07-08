@@ -26,7 +26,8 @@ class RNNNet:
     def GRUclass(self):
         if onGPU:
             print('On GPU, using CuDNNGRU layer')
-            return CuDNNGRU
+            # TODO change
+            return GRU
         else:
             print('On CPU, using GRU layer')
             return GRU

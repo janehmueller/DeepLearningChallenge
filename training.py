@@ -68,8 +68,8 @@ def main():
 
     model.fit_generator(training_data_generator,
                         callbacks=callbacks,
-                        use_multiprocessing=False,
-                        workers=0,
+                        use_multiprocessing=True,
+                        workers=2,
                         **base_configuration['fit_params'])
 
     model.save(path.join(model_dir, 'model-all.hdf5'), overwrite=True)
