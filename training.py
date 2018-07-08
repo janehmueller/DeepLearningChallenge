@@ -70,7 +70,7 @@ def main():
     func_model = model(inception.output)
     model = Model(inputs=inception.input, outputs=func_model)
 
-    if onGPU and countGPU != 1:
+    if onGPU and countGPU != '1':
         model = multi_gpu_model(model)
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
 
