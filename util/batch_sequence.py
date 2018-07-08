@@ -34,7 +34,8 @@ class BatchSequence(Sequence):
     # get a batch
     def __getitem__(self, index):
         # TODO shuffle after every epoch
-        image_ids = {tup.image_id for tup in self.batch_captions[index]}
+        caption_tuples = self.batch_captions[index]
+        image_ids = {tup.image_id for tup in caption_tuples}
         images = {
             image_id: self.preprocess_image(self.file_loader.id_file_map[image_id]) for image_id in image_ids
         }
