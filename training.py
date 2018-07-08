@@ -44,7 +44,7 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
                 yield ([batch_images, batch_input_captions], batch_captions)
                 i = 0
             batch_images[i] = image
-            batch_captions[i + 1] = text_preprocessor.encode_caption(caption)
+            batch_captions[i] = text_preprocessor.encode_caption(caption)
             batch_input_captions[i] = text_preprocessor.encode_caption(caption, one_hot=False)
             i += 1
 
