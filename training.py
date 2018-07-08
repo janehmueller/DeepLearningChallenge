@@ -38,7 +38,7 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
         for caption in file_loader.id_caption_map[image_id]:
             if i >= batch_size:
                 # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-                yield (batch_images, batch_captions)
+                yield ([batch_images, batch_captions], batch_captions)
                 i = 0
             batch_images[i] = image
             batch_captions[i] = text_preprocessor.encode_caption(caption)
