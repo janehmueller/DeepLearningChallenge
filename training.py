@@ -18,7 +18,7 @@ from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from src.text_preprocessing import TextPreprocessor
 from util.loss import categorical_crossentropy_from_logits
-from util.checkGPU import onGPU
+from util.checkGPU import onGPU, countGPU
 
 
 def model_list_add(model: Sequential, layer_list):
@@ -70,7 +70,7 @@ def main():
     func_model = model(inception.output)
     model = Model(inputs=inception.input, outputs=func_model)
 
-    if onGPU:
+    if onGPU and countGPU != 1:
         model = multi_gpu_model(model)
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
 
