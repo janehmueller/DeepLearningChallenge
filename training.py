@@ -72,25 +72,15 @@ def main():
     sentence_input, sentence_embedding = text_preprocessor.word_embedding_layer()
 
     sequence_input = Concatenate(axis=1)([image_embedding, sentence_embedding])
-    sequence_input = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "Concatenate Output Shape: "))(sequence_input)
-    sequence_input = Lambda(lambda x: tf.Print(x, [x], "Concatenate Output: "))(sequence_input)
 
     # RNN Here
     input_ = sequence_input
     for rnn in rnn_net.layers:
-        input_ = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "Batch Normalization Input Shape: "))(input_)
-        input_ = Lambda(lambda x: tf.Print(x, [x], "Batch Normalization Input: "))(input_)
         input_ = BatchNormalization(axis=-1)(input_)
-        input_ = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "RNN Input Shape: "))(input_)
-        input_ = Lambda(lambda x: tf.Print(x, [x], "RNN Input: "))(input_)
         rnn_out = rnn(input_)
-        rnn_out = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "RNN Output Shape: "))(rnn_out)
-        rnn_out = Lambda(lambda x: tf.Print(x, [x], "RNN Output: "))(rnn_out)
         input_ = rnn_out
 
     sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(rnn_out)
-    sequence_output = Lambda(lambda x: tf.Print(x, [tf.shape(x)], "TD Dense Output Shape: "))(sequence_output)
-    sequence_output = Lambda(lambda x: tf.Print(x, [x], "TD Dense Output: "))(sequence_output)
 
     model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
 
