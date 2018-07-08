@@ -32,8 +32,9 @@ def categorical_crossentropy_from_logits(y_true, y_pred):
     print(y_pred.get_shape())
 
     y_pred_float = tf.cast(y_pred, tf.float32)
+    y_pred_float = tf.Print(y_pred_float, [y_pred_float], 'Y_PRED: ', summarize=1000)
     y_true_float = tf.cast(y_true, tf.float32)
-    y_true_float = tf.Print(y_true_float, [y_true_float], 'Y_TRUE: ')
+    y_true_float = tf.Print(y_true_float, [y_true_float], 'Y_TRUE: ', summarize=1000)
     sum = tf.reduce_mean(y_pred_float, axis=1, keepdims=True)
     print(sum.get_shape())
 
@@ -78,7 +79,7 @@ def categorical_crossentropy_from_logits(y_true, y_pred):
     loss = pred_sum + categorical_loss
     loss = tf.Print(loss, [loss], 'LOSS: ')
 
-    return loss
+    return categorical_loss
 
     #max = tf.reduce_max(y_own_pred, axis=0)
     # sum = sum - 1

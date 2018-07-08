@@ -3,10 +3,12 @@ import itertools
 import keras
 from keras import Sequential
 from keras.initializers import RandomNormal
-from keras.layers import Dense, BatchNormalization
+from keras.layers import Dense, BatchNormalization, Lambda
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
 from keras.applications import InceptionV3
+
+import tensorflow as tf
 
 from src.config import base_configuration
 from src.file_loader import File
@@ -41,9 +43,11 @@ class ImageNet:
         for layer in self.inception.layers:
             layer.trainable = False
 
-        self.layers.append(BatchNormalization(axis=-1))
+        #self.layers.append(BatchNormalization())
+#        self.layers.append(Lambda(lambda x: tf.Print(x, [x], 'N: ', summarize=1000)))
+
         self.layers.append(Dense(base_configuration['sizes']['rnn_input'],
-                                 kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
+                                 kernel_initializer=RandomNormal(mean=0, stddev=0.1)))
         # TODO: regularizer and initializer
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer

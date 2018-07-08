@@ -8,6 +8,8 @@ from src.file_loader import File
 from src.image_net import ImageNet
 from src.text_preprocessing import TextPreprocessor
 
+import tensorflow as tf
+
 from util.loss import categorical_crossentropy_from_logits
 
 
@@ -31,7 +33,7 @@ def prediction_data(images, file_loader):
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
     #model_dir = '/home/cps4/DeepLearningChallenge/tmp/model-saves-leo-02'
-    model_path = path.join(model_dir, "20.hdf5")
+    model_path = path.join(model_dir, "36.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()

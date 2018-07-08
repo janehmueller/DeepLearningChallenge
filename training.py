@@ -2,15 +2,18 @@ import itertools
 from typing import Generator
 
 from keras.callbacks import ModelCheckpoint
+from keras.initializers import RandomNormal
+from keras.optimizers import SGD, Adam
 from os import path, makedirs
 import time
 
 from keras import Sequential, Model
-from keras.layers import Dense, TimeDistributed
+from keras.layers import Dense, TimeDistributed, Lambda, Softmax
 import numpy as np
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
 from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
+import tensorflow as tf
 
 from src.config import base_configuration
 from src.file_loader import File
@@ -46,6 +49,19 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
             i += 1
 
 
+def prediction_data_generator(images):
+    batch_size = base_configuration['batch_size']
+    image_shape = [299, 299, 3]
+    batch_images = np.zeros(shape=[batch_size] + image_shape)
+    i = 0
+    for image_id, image in images:
+        if i >= batch_size:
+            # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
+            yield batch_images
+            i = 0
+        batch_images[i] = image
+        i += 1
+
 def main():
     timestamp = str(round(time.time()))
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves') #.' + timestamp)
@@ -56,24 +72,28 @@ def main():
     image_net = ImageNet(file_loader)
     rnn_net = RNNNet()
     text_preprocessor = TextPreprocessor()
-    text_preprocessor.process_captions(file_loader.id_caption_map.values())
+    #text_preprocessor.process_captions(file_loader.id_caption_map.values())
+    text_preprocessor.process_captions([['A', 'restaurant']])
     text_preprocessor.serialize(model_dir)
 
     model = Sequential()
     inception, image_net_layers = image_net.inception_model
     model_list_add(model, image_net_layers)
+
+#    model.add(Lambda(lambda x: tf.Print(x, [x], 'X: ', summarize=1000)))
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
-    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu')))
+    model.add(TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='softmax',
+                                    kernel_initializer=RandomNormal(mean=0, stddev=0.1))))
 
-    model.compile(loss='categorical_crossentropy', **base_configuration['model_hyper_params'])
+    model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.5), **base_configuration['model_hyper_params'])
 
     func_model = model(inception.output)
     model = Model(inputs=inception.input, outputs=func_model)
 
     if onGPU and countGPU != '1':
         model = multi_gpu_model(model)
-    model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
+    model.compile(loss=categorical_crossentropy_from_logits, optimizer=Adam(lr=0.001), **base_configuration['model_hyper_params'])
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
@@ -97,6 +117,11 @@ def main():
                         **base_configuration['fit_params'])
 
     model.save(path.join(model_dir, 'model-all.hdf5'), overwrite=True)
+
+    predict = model.predict_generator(prediction_data_generator(image_net.images), steps=1)
+    print(predict)
+
+    print(model.predict(np.asarray(image_net.images.__next__())))
 
 
 if __name__ == '__main__':

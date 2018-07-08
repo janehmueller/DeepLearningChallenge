@@ -41,8 +41,8 @@
     }
   },
   "model_hyper_params": {
-    "optimizer": "sgd",
     "metrics": [
+      "categorical_accuracy",
       "accuracy"
     ]
   },
@@ -52,7 +52,7 @@
     "repeat_vector_length": 4
   },
   "fit_params": {
-    "epochs": 36,
+    "epochs": 10,
     "max_queue_size": 32
   },
   "eos_token": "zeornd",
