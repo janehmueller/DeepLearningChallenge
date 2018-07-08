@@ -11,14 +11,15 @@ from util.functional import group
 
 CaptionTuple = namedtuple('CaptionTuple', ['image_id', 'caption'])
 
-class DataLoader(Sequence):
-    def __init__(self, file_loader, model_dir):
-        self.file_loader = file_loader
+class BatchSequence(Sequence):
+    def __init__(self, model_dir):
+        self.file_loader = File.load(base_configuration['selected_dataset'])
         self.text_preprocessor = TextPreprocessor()
         self.text_preprocessor.process_captions(self.file_loader.id_caption_map.values())
         self.text_preprocessor.serialize(model_dir)
         self.batch_size = base_configuration['batch_size']
         self.batch_captions = self.calc_batches()
+        self.len = int(np.floor(self.captions_num / self.batch_size))
 
     def calc_batches(self):
         flat_captions = [CaptionTuple(image_id, caption)
@@ -26,20 +27,19 @@ class DataLoader(Sequence):
                 for caption in self.file_loader.id_caption_map[image_id]]
         return list(group(flat_captions, self.batch_size))
 
+    # number of batches per epoch
     def __len__(self):
-        # number of batches per epoch
-        return int(np.floor(self.captions_num / self.batch_size))
+        return self.len
 
     # get a batch
     def __getitem__(self, index):
         # TODO shuffle after every epoch
-        caption_tuples = self.batch_captions[index]
-        image_ids = {tup.image_id for tup in caption_tuples}
+        image_ids = {tup.image_id for tup in self.batch_captions[index]}
         images = {
             image_id: self.preprocess_image(self.file_loader.id_file_map[image_id]) for image_id in image_ids
         }
 
-        image_shape = [299, 299, 3]
+        image_shape = base_configuration['sizes']['image_shape']
         caption_length = base_configuration['sizes']['repeat_vector_length']
         one_hot_size = self.text_preprocessor.one_hot_encoding_size
 
@@ -54,12 +54,8 @@ class DataLoader(Sequence):
 
     @staticmethod
     def preprocess_image(path):
-        loaded_image = load_img(path, target_size=(299, 299))
+        loaded_image = load_img(path, target_size=base_configuration['sizes']['image'])
         return img_to_array(loaded_image)
-
-    @property
-    def images_num(self):
-        return len(self.file_loader.id_file_map)
 
     @property
     def captions_num(self):

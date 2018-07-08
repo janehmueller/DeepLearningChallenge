@@ -13,12 +13,11 @@ from keras.callbacks import TensorBoard
 from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
 
 from src.config import base_configuration
-from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from util.loss import categorical_crossentropy_from_logits
 from util.checkGPU import onGPU
-from util.data_loader import DataLoader
+from util.batch_sequence import BatchSequence
 
 
 def model_list_add(model: Sequential, layer_list):
@@ -31,9 +30,7 @@ def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves.' + timestamp)
     makedirs(model_dir, exist_ok=True)
 
-    file_loader = File.load(base_configuration['selected_dataset'])
-    # training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
-    training_data_generator = DataLoader(file_loader, model_dir)
+    batch_sequence = BatchSequence(model_dir)
 
     image_net = ImageNet()
     rnn_net = RNNNet()
@@ -42,7 +39,7 @@ def main():
     model_list_add(model, image_net_layers)
     # model_list_add(model, text_preprocessor.word_embedding_layer()))
     model_list_add(model, rnn_net.layers)
-    model.add(TimeDistributed(Dense(training_data_generator.text_preprocessor.one_hot_encoding_size, activation='relu')))
+    model.add(TimeDistributed(Dense(batch_sequence.text_preprocessor.one_hot_encoding_size, activation='relu')))
 
     # model = multi_gpu_model(model)
 
@@ -66,7 +63,7 @@ def main():
         tensorboard
     ]
 
-    model.fit_generator(training_data_generator,
+    model.fit_generator(batch_sequence,
                         callbacks=callbacks,
                         use_multiprocessing=False,
                         workers=1,
