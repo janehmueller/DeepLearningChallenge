@@ -35,7 +35,7 @@ def prediction_data(images, file_loader):
 
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> List[str]:
     caption_results = []
-    for _ in range(0, step_size):
+    for _ in range(0, 1):  # TODO: step_size
         input, label = next(data_generator)
         captions_prediction_string = predict_batch(model, input, tp)
         caption_results.extend(captions_prediction_string)
