@@ -83,7 +83,7 @@ def main():
         **base_configuration['model_hyper_params']
     )
 
-    if onGPU and countGPU is not None:
+    if onGPU and countGPU is None:
         model = multi_gpu_model(model)
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
 
