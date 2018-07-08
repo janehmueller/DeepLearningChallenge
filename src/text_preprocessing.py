@@ -140,7 +140,7 @@ class TextPreprocessor(object):
             self.vocab = json.load(file)
             self.tokenizer.word_index = self.vocab
 
-    def word_embedding_layer(self) -> List[Layer]:
+    def word_embedding_layer(self):
         """
         Builds the embedding layer that is prepended to every RNN timestep.
         :return: one-element list of the dense layer
@@ -164,14 +164,12 @@ class TextPreprocessor(object):
 
             word_vector_weights.append(caption_word_vector)
 
-        biases = np.zeros(output_size)
-
         sentence_input = Input([None])
         embedding_tensor = Embedding(
             input_dim=input_size,
             output_dim=output_size,
             weights=[np.asarray(word_vector_weights)],
-            trainable=False
+            trainable=True
         )(sentence_input)
 
         return sentence_input, embedding_tensor
