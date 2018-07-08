@@ -41,7 +41,6 @@
     }
   },
   "model_hyper_params": {
-    "optimizer": "sgd",
     "metrics": [
       "accuracy"
     ]

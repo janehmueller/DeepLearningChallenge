@@ -9,6 +9,7 @@ import time
 from keras import Sequential, Model, Input
 from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization, Lambda
 import numpy as np
+from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
 from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
@@ -96,7 +97,11 @@ def main():
     if onGPU and countGPU is None:
         model = multi_gpu_model(model)
 
-    model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
+    model.compile(
+        loss=categorical_crossentropy_from_logits,
+        optimizer=Adam(clip_norm=5.0),
+        **base_configuration['model_hyper_params']
+    )
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
