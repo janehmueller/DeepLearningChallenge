@@ -151,29 +151,29 @@ class TextPreprocessor(object):
         :return: one-element list of the dense layer
         """
 
-        # if not self.word_vectors:
-        #     self.word_vectors = WordVector(self.vocab, self.word_vector_type)
-        output_size = 300  # self.word_vectors.embedding_size()
+        if not self.word_vectors:
+            self.word_vectors = WordVector(self.vocab, self.word_vector_type)
+        output_size = self.word_vectors.embedding_size()
         input_size = self.one_hot_encoding_size
 
-        # sorted_vocab = list(self.vocab.items())
-        # sorted_vocab.sort(key=lambda x: x[1])
+        sorted_vocab = list(self.vocab.items())
+        sorted_vocab.sort(key=lambda x: x[1])
 
-        # word_vector_weights = []
-        # word_vector_weights.append(np.zeros(output_size))
-        # for caption, idx in sorted_vocab:
-        #     caption_word_vector = self.word_vectors.vectorize_word(caption)
-        #
-        #     if caption_word_vector is None:
-        #         caption_word_vector = np.random.normal(size=output_size, scale=np.sqrt(2. / (output_size + input_size)))
-        #
-        #     word_vector_weights.append(caption_word_vector)
+        word_vector_weights = []
+        word_vector_weights.append(np.zeros(output_size))
+        for caption, idx in sorted_vocab:
+            caption_word_vector = self.word_vectors.vectorize_word(caption)
+
+            if caption_word_vector is None:
+                caption_word_vector = np.random.normal(size=output_size, scale=np.sqrt(2. / (output_size + input_size)))
+
+            word_vector_weights.append(caption_word_vector)
 
         sentence_input = Input([None])
         embedding_tensor = Embedding(
             input_dim=input_size,
             output_dim=output_size,
-            # weights=[np.asarray(word_vector_weights)],
+            weights=[np.asarray(word_vector_weights)],
             trainable=True
         )(sentence_input)
 
