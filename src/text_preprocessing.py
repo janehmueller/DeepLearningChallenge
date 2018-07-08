@@ -151,7 +151,7 @@ class TextPreprocessor(object):
 
         # if not self.word_vectors:
         #     self.word_vectors = WordVector(self.vocab, self.word_vector_type)
-        output_size = self.word_vectors.embedding_size()
+        output_size = 300  # self.word_vectors.embedding_size()
         input_size = self.one_hot_encoding_size
 
         # sorted_vocab = list(self.vocab.items())
