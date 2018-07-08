@@ -10,10 +10,6 @@ class RNNNet:
     def layers(self) -> list:
         layers = []
 
-        #layers.append(RepeatVector(
-            #base_configuration['sizes']['repeat_vector_length']
-        #))
-
         layers.append(self.GRUclass(
             base_configuration['sizes']['rnn_output'],
             return_sequences=True
