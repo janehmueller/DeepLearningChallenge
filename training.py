@@ -98,8 +98,8 @@ def main():
         model = multi_gpu_model(model)
 
     model.compile(
-        loss=categorical_crossentropy_from_logits,
-        optimizer=Adam(clip_norm=5.0),
+        loss="categorical_crossentropy",
+        optimizer=Adam(clipnorm=5.0),
         **base_configuration['model_hyper_params']
     )
 
