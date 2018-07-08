@@ -80,14 +80,15 @@ def main():
     sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(rnn_out)
 
     model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
-    model.compile(
-        loss=categorical_crossentropy_from_logits,
-        **base_configuration['model_hyper_params']
-    )
 
     if onGPU and countGPU is None:
         model = multi_gpu_model(model)
+
+    print(model.summary())
+
     model.compile(loss=categorical_crossentropy_from_logits, **base_configuration['model_hyper_params'])
+
+    print(model.summary())
 
     training_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
 
