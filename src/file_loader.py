@@ -78,7 +78,7 @@ class CocoFile(File):
             for annotation in self.data['annotations']:
                 if annotation['image_id'] not in self._id_caption_map:
                     self._id_caption_map[annotation['image_id']] = []
-                self._id_caption_map[annotation['image_id']].append(annotation['caption'])
+                self._id_caption_map[annotation['image_id']].append(" ".join(annotation['caption'].split(' ')[:2]))
 
         return self._id_caption_map
 

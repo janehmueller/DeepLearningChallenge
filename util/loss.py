@@ -1,3 +1,4 @@
+from keras.losses import categorical_crossentropy
 from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
 
 import tensorflow as tf
@@ -30,59 +31,54 @@ def categorical_crossentropy_from_logits(y_true, y_pred):
     print(y_true.get_shape())
     print(y_pred.get_shape())
 
-    #y_pred1 = tf.Print(y_pred[0, :], [y_pred[0, :]], '\n1PRED: ')
-    #y_pred2 = tf.Print(y_pred[1, :], [y_pred[1, :]], '\n2PRED: ')
     y_pred_float = tf.cast(y_pred, tf.float32)
     y_true_float = tf.cast(y_true, tf.float32)
-    #y_pred_max = tf.argmax(y_own_pred, axis=2)
-
-    #one_hot = tf.one_hot(y_pred_max, tf.shape(y_own_pred)[2])
-    #return one_hot
-    #one_hot = tf.tanh(y_pred_max)
-    #sum = tf.reduce_sum(one_hot, axis=0)# + (y_pred1[0] * 0) + (y_pred2[0] * 0)
-    sum = tf.reduce_mean(y_pred_float, axis=1)# + (y_pred1[0] * 0) + (y_pred2[0] * 0)
-    #sum = tf.Print(sum, [sum], 'SUM------|: ', summarize=10000)
+    y_true_float = tf.Print(y_true_float, [y_true_float], 'Y_TRUE: ')
+    sum = tf.reduce_mean(y_pred_float, axis=1, keepdims=True)
     print(sum.get_shape())
 
-    #max_sum = tf.reduce_max(sum, axis=1, keepdims=True)
-    #max_sum = tf.Print(max_sum, [max_sum], 'MAX: ')
-    #max_sum = max_sum - .1
-    #max_sum = tf.Print(max_sum, [max_sum], 'MAX: ')
-    #print(max_sum.get_shape())
-    #max_sum = tf.map_fn(lambda value_1: tf.map_fn(lambda value_2: tf.tile(value_2, 23683), value_1), max_sum)
-    #max_sum = tf_repeat(max_sum, [[1, 64] * tf.shape(max_sum)[0]])
-    #max_sum = tf_repeat(max_sum, [1, 1, 23683])
-    #max_sum = tf.Print(max_sum, [max_sum], 'MAX: ')
-    #print(max_sum.get_shape())
-    #pred_sum = y_pred - max_sum
-    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum1: ')
-    #pred_sum = tf.maximum(pred_sum, 0)
-    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum2: ')
-    #pred_sum = pred_sum * 1000 * 100
-    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum3: ')
-    #pred_sum = tf.reduce_max(pred_sum, axis=1)
-    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum4: ')
+    max_sum = tf.reduce_max(sum, axis=1, keepdims=True)
+    max_sum = max_sum - .1
+    max_sum = tf.Print(max_sum, [max_sum], 'MAX_SUM: ')
 
     pred_sum = y_pred_float - 1000
     pred_sum = tf.maximum(pred_sum, 0)
-    pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum5: ')
-    pred_sum = pred_sum + tf.square(sum) * 500
+    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum5: ')
+    square_content = (tf.maximum(sum - (max_sum * 0.9), 0) * 10) + 1
+    #square_content = tf.Print(square_content, [square_content], '\nSQUARE_CONT: ', summarize=1000)
+    squared = tf.square(square_content) - 1
+    #squared = tf.Print(squared, [squared], '\nSQUARED: ', summarize=1000)
+    pred_sum = tf.add(pred_sum, squared)
+
+
     #y_pred_float = tf.Print(y_pred_float, [y_pred_float], '\nPRED_INPU: ', summarize=1000)
-    pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum6: ')
+    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum6: ')
     #y_true_float = tf.Print(y_true_float, [y_true_float], '\nTRUE_INPU: ', summarize=1000)
 
-    true_diff = y_pred_float - (y_true_float * 100)
+    #true_diff = y_pred_float - (y_true_float * 2)
     #true_diff = tf.Print(true_diff, [true_diff], 'TRUE DIFF: ')
     #true_diff = tf.square(true_diff)
     #true_diff = tf.Print(true_diff, [true_diff], 'TRUE DIFF: ')
-    true_diff = true_diff * 10
+    #true_diff = tf.square(true_diff * 10)
     #true_diff = tf.Print(true_diff, [true_diff], 'TRUE DIFF: ')
-    pred_sum = pred_sum + true_diff
+    #pred_sum = pred_sum + true_diff
     #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum final: ')
 
 
+    #pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum 99999: ')
+    pred_sum = tf.reduce_mean(pred_sum, axis=2)
+    pred_sum = tf.Print(pred_sum, [pred_sum], 'pred_sum final: ')
+
     print(pred_sum.get_shape())
-    return pred_sum
+
+    categorical_loss = categorical_crossentropy(y_true_float, y_pred_float)
+    categorical_loss = tf.Print(categorical_loss, [categorical_loss], 'CATLOSS: ')
+    print(categorical_loss.get_shape())
+
+    loss = pred_sum + categorical_loss
+    loss = tf.Print(loss, [loss], 'LOSS: ')
+
+    return loss
 
     #max = tf.reduce_max(y_own_pred, axis=0)
     # sum = sum - 1

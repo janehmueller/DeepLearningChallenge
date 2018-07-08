@@ -49,13 +49,13 @@
   "sizes": {
     "rnn_input": 300,
     "rnn_output": 300,
-    "repeat_vector_length": 64
+    "repeat_vector_length": 4
   },
   "fit_params": {
     "epochs": 36,
     "max_queue_size": 32
   },
   "eos_token": "zeornd",
-  "batch_size": 64,
-  "image_input_num": 1000
+  "batch_size": 1,
+  "image_input_num": 1
 }
