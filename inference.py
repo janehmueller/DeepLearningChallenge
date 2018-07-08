@@ -30,7 +30,8 @@ def prediction_data(images, file_loader):
 
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
-    model_path = path.join(model_dir, "02.hdf5")
+    #model_dir = '/home/cps4/DeepLearningChallenge/tmp/model-saves-leo-02'
+    model_path = path.join(model_dir, "03.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()
