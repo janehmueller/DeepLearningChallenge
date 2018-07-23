@@ -73,7 +73,7 @@ class ImageNet:
 
     @property
     def captions_num(self):
-        return sum((len(self.file_loader.id_caption_map[key]) for key in self.file_loader.id_file_map.keys()))
+        return sum((len(self.file_loader.id_caption_map[key]) for key in self.file_loader.id_file_map))
 
 
 if __name__ == "__main__":

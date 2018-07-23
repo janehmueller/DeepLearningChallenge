@@ -1,3 +1,4 @@
+import math
 from os import path
 from typing import List
 
@@ -90,7 +91,7 @@ def main():
 
     file_loader = File.load(base_configuration['selected_dataset'])
     image_net = ImageNet(file_loader)
-    step_size = int((image_net.captions_num / base_configuration['batch_size']) + .5)
+    step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
 
     # prediction_data_generator = prediction_data(image_net.images, file_loader)
     prediction_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
