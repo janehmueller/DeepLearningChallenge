@@ -57,7 +57,7 @@ class TextPreprocessor(object):
         :param value: the new vocabulary
         """
         self._vocab = value
-        self.inverse_vocab = dict([(v, k) for k, v in self._vocab.items()])
+        self.inverse_vocab = {v: k for k, v in self._vocab.items()}
 
     @property
     def one_hot_encoding_size(self):
@@ -81,9 +81,6 @@ class TextPreprocessor(object):
         self.tokenizer.fit_on_texts(flat_captions)
         self.vocab = self.tokenizer.word_index
 
-    def encode_caption(self, caption, one_hot=True):
-        return self.encode_captions([caption], one_hot)[0]
-
     def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
         one_hot = np.zeros([len(caption_indices), one_hot_size])
 
@@ -93,6 +90,9 @@ class TextPreprocessor(object):
         # one_hot[np.arange(len(caption_indices)), caption_indices] = 1
         # Transform padding one-hot encoding with a 0-filled vector
         return one_hot
+
+    def encode_caption(self, caption, one_hot=True):
+        return self.encode_captions([caption], one_hot)[0]
 
     def encode_captions(self, captions: List[str], one_hot=True) -> List[np.ndarray]:
         """
@@ -130,7 +130,7 @@ class TextPreprocessor(object):
         decoded_captions = []
 
         indices = np.argmax(one_hot_captions, axis=2)
-        indices[indices == self.eos_token_index()] = 0
+        # TODO: indices[indices == self.eos_token_index()] = 0
         for caption in indices:
             decoded_captions.append([self.inverse_vocab[idx] for idx in caption if idx != 0])
 
@@ -161,8 +161,8 @@ class TextPreprocessor(object):
 
         word_vector_weights = []
         word_vector_weights.append(np.zeros(output_size))
-        for caption, idx in sorted_vocab:
-            caption_word_vector = self.word_vectors.vectorize_word(caption)
+        for word, idx in sorted_vocab:
+            caption_word_vector = self.word_vectors.vectorize_word(word)
 
             if caption_word_vector is None:
                 caption_word_vector = np.random.normal(size=output_size, scale=np.sqrt(2. / (output_size + input_size)))
