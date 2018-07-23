@@ -4,9 +4,9 @@ from os import path
 from typing import List, Dict
 
 import numpy as np
-from keras import Sequential
+from keras import Sequential, Input
 from keras.engine import Layer
-from keras.layers import Dense
+from keras.layers import Dense, Embedding
 from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
 
@@ -81,8 +81,8 @@ class TextPreprocessor(object):
         self.tokenizer.fit_on_texts(flat_captions)
         self.vocab = self.tokenizer.word_index
 
-    def encode_caption(self, caption):
-        return self.encode_captions([caption])[0]
+    def encode_caption(self, caption, one_hot=True):
+        return self.encode_captions([caption], one_hot)[0]
 
     def one_hot_encode_caption(self, caption_indices: List[int], one_hot_size: int) -> np.ndarray:
         one_hot = np.zeros([len(caption_indices), one_hot_size])
@@ -94,7 +94,7 @@ class TextPreprocessor(object):
         # Transform padding one-hot encoding with a 0-filled vector
         return one_hot
 
-    def encode_captions(self, captions: List[str]) -> List[np.ndarray]:
+    def encode_captions(self, captions: List[str], one_hot=True) -> List[np.ndarray]:
         """
         Tokenizes and one-hot encodes captions. They are returned as numpy array with the shape
         (num_captions, size_of_longest_caption, vocab_size + 1). Padding is encoded as zero-vector.
@@ -104,10 +104,15 @@ class TextPreprocessor(object):
         captions_indices = self.tokenizer.texts_to_sequences(captions)
         captions_indices = [caption + [self.eos_token_index()] for caption in captions_indices]
 
+        caption_length = base_configuration['sizes']['repeat_vector_length'] + one_hot
+
         # TODO refactor to np.pad!
-        captions_indices.append([0] * base_configuration['sizes']['repeat_vector_length'])
+        captions_indices.append([0] * (caption_length))
         captions_indices = np.array(list(itertools.zip_longest(*captions_indices, fillvalue=0))).T
         captions_indices = captions_indices[:-1]
+
+        if not one_hot:
+            return captions_indices
 
         max_idx = self.one_hot_encoding_size
         return [self.one_hot_encode_caption(caption, max_idx) for caption in captions_indices]
@@ -140,7 +145,7 @@ class TextPreprocessor(object):
             self.vocab = json.load(file)
             self.tokenizer.word_index = self.vocab
 
-    def word_embedding_layer(self) -> List[Layer]:
+    def word_embedding_layer(self):
         """
         Builds the embedding layer that is prepended to every RNN timestep.
         :return: one-element list of the dense layer
@@ -164,15 +169,15 @@ class TextPreprocessor(object):
 
             word_vector_weights.append(caption_word_vector)
 
-        biases = np.zeros(output_size)
+        sentence_input = Input([None])
+        embedding_tensor = Embedding(
+            input_dim=input_size,
+            output_dim=output_size,
+            weights=[np.asarray(word_vector_weights)],
+            trainable=True
+        )(sentence_input)
 
-        layer = Dense(
-            output_size,
-            input_shape=[input_size],
-            weights=[np.asarray(word_vector_weights), biases],
-            trainable=False
-        )
-        return [layer]
+        return sentence_input, embedding_tensor
 
 
 if __name__ == "__main__":
