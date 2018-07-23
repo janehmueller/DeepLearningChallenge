@@ -6,7 +6,7 @@ from keras.initializers import RandomNormal
 from keras.layers import Dense, BatchNormalization, RepeatVector
 from keras.optimizers import SGD
 from keras.preprocessing.image import load_img, img_to_array
-from keras.applications import InceptionV3
+from keras.applications import InceptionV3, inception_v3
 
 from src.config import base_configuration
 from src.file_loader import File
@@ -18,38 +18,32 @@ from util.threading import LockedIterator
 class ImageNet:
     def __init__(self, file_loader: File):
         self.file_loader = file_loader
-        self.layers = []
-        self.inception = None
 
-    # @property
-    # def layers(self) -> list:
-    #     layers = []
-    #
-    #     layers.append(Dense(
-    #         base_configuration['sizes']['rnn_input'],
-    #         input_shape=[299 * 299 * 3]
-    #     ))
-    #
-    #     return layers
+    @property
+    def layers(self) -> list:
+        layers = []
+
+        #layers.append(BatchNormalization(axis=-1))
+        layers.append(Dense(base_configuration['sizes']['rnn_input'],
+                                 kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
+        layers.append(RepeatVector(1))
+
+        return layers
 
     @property
     def inception_model(self) -> InceptionV3:
         # Initialize with imagenet weights
-        self.inception = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
+        inception = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
 
         # Fix weights
-        for layer in self.inception.layers:
+        for layer in inception.layers:
             layer.trainable = False
 
-        self.layers.append(BatchNormalization(axis=-1))
-        self.layers.append(Dense(base_configuration['sizes']['rnn_input'],
-                                 kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
-        self.layers.append(RepeatVector(1))
         # TODO: regularizer and initializer
         # kernel_regularizer=self.regularizer,
         # kernel_initializer=self.initializer
 
-        image_model, image_net_layers = self.inception, self.layers
+        image_model, image_net_layers = inception, self.layers
 
         prev_output = image_model.output
         for layer in image_net_layers:
@@ -60,7 +54,8 @@ class ImageNet:
     @staticmethod
     def preprocess_image(path):
         loaded_image = load_img(path, target_size=(299, 299))
-        return img_to_array(loaded_image)
+        tmp = img_to_array(loaded_image)
+        return inception_v3.preprocess_input(tmp)
 
     @property
     def images(self):

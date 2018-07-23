@@ -76,7 +76,7 @@ def main():
     # RNN Here
     input_ = sequence_input
     for rnn in rnn_net.layers:
-        input_ = BatchNormalization(axis=-1)(input_)
+        #input_ = BatchNormalization(axis=-1)(input_)
         rnn_out = rnn(input_)
         input_ = rnn_out
 
