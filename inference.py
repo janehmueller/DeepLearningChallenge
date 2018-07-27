@@ -64,7 +64,7 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Li
         image, captions = input
         captions = np.zeros_like(captions)
         tmp_results = []
-        for i in range(0, base_configuration['sizes']['repeat_vector_length'] + 1):
+        for i in range(base_configuration['sizes']['repeat_vector_length'] + 1):
             captions_prediction_string = predict_batch(model, [image, captions], tp)
             captions = tp.encode_captions(captions_prediction_string, one_hot=False)
             # tmp_results.append(captions_prediction_string)
@@ -82,7 +82,7 @@ def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> List[str]:
 def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
     #model_dir = '/home/cps4/DeepLearningChallenge/tmp/model-saves-leo-02'
-    model_path = path.join(model_dir, "01.hdf5")
+    model_path = path.join(model_dir, "model-all.hdf5")
     #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()
