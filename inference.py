@@ -1,4 +1,5 @@
 import math
+from argparse import ArgumentParser
 from os import path
 from typing import List
 
@@ -82,10 +83,14 @@ def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> np.ndarray
 
 
 def main():
+    parser = ArgumentParser()
+    parser.add_argument("--model-name", dest="model_name", type=str)
+    args = parser.parse_args()
+
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
-    #model_dir = '/home/cps4/DeepLearningChallenge/tmp/model-saves-leo-02'
-    model_path = path.join(model_dir, "model-all.hdf5")
-    #model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
+    model_path = path.join(model_dir, args.model_name or "model-all.hdf5")
+    # model_dir = '/home/cps4/DeepLearningChallenge/tmp/model-saves-leo-02'
+    # model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
     text_preprocessor = TextPreprocessor()
     text_preprocessor.deserialize(model_dir)
