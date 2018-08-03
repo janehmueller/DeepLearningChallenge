@@ -109,9 +109,9 @@ def main():
     predictions, image_ids = predict(model, prediction_data_generator, step_size, text_preprocessor)
 
     for prediction, image_id in zip(predictions, image_ids):
-        print("Image path: " + file_loader.id_file_map[processed_images[image_id]])
+        print("Image path: " + file_loader.id_file_map[image_id])
         print(prediction)
-        print("\t" + "\n\t".join(file_loader.id_caption_map[processed_images[image_id]]) + "\n")
+        print("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
 
     # predictions = model.predict_generator(prediction_data_generator, steps=1)
     # captions_indices = [np.argmax(pred_caption, axis=1) for pred_caption in predictions]
