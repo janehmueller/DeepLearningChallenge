@@ -1,7 +1,7 @@
 import math
 from argparse import ArgumentParser
 from os import path
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from keras import Model
@@ -22,14 +22,16 @@ def prediction_data(images):
     batch_size = base_configuration['batch_size']
     image_shape = [299, 299, 3]
     batch_images = np.zeros(shape=[batch_size] + image_shape)
+    image_ids = []
     i = 0
     for image_id, image in images:
         if i >= batch_size:
             # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-            yield batch_images
+            yield batch_images, image_ids
             i = 0
+            image_ids = []
 
-        processed_images.append(image_id)
+        image_ids.append(image_id)
         batch_images[i] = image
         i += 1
 
@@ -58,10 +60,11 @@ def prediction_data(images):
 #             i += 1
 
 
-def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> List[str]:
+def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Tuple[List[str], List[int]]:
     caption_results = []
+    image_ids = []
     for _ in range(0, 1):  # TODO: step_size
-        image_batch = next(data_generator)
+        image_batch, image_ids = next(data_generator)
         captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)[:, :-1]
         i = 0
         while i < base_configuration['sizes']['repeat_vector_length']:
@@ -73,7 +76,8 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Li
             i += 1
         captions_str = tp.decode_captions_to_str(captions)
         caption_results.extend(captions_str)
-    return caption_results
+        image_ids.extend(image_ids)
+    return caption_results, image_ids
 
 
 def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> np.ndarray:
@@ -102,12 +106,12 @@ def main():
 
     prediction_data_generator = prediction_data(image_net.images)
     # prediction_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
-    predictions = predict(model, prediction_data_generator, step_size, text_preprocessor)
+    predictions, image_ids = predict(model, prediction_data_generator, step_size, text_preprocessor)
 
-    for i, prediction in enumerate(predictions):
-        print("Image path: " + file_loader.id_file_map[processed_images[i]])
+    for prediction, image_id in zip(predictions, image_ids):
+        print("Image path: " + file_loader.id_file_map[processed_images[image_id]])
         print(prediction)
-        print("\t" + "\n\t".join(file_loader.id_caption_map[processed_images[i]]) + "\n")
+        print("\t" + "\n\t".join(file_loader.id_caption_map[processed_images[image_id]]) + "\n")
 
     # predictions = model.predict_generator(prediction_data_generator, steps=1)
     # captions_indices = [np.argmax(pred_caption, axis=1) for pred_caption in predictions]
