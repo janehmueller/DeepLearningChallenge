@@ -12,9 +12,9 @@ class RNNNet:
 
         layers.append(self.GRUclass(
             base_configuration['sizes']['rnn_output'],
-            return_sequences=True
-            #dropout=.2,
-            #recurrent_dropout=.2
+            return_sequences=True,
+            dropout=base_configuration['sizes']['dropout_rate'],
+            recurrent_dropout=base_configuration['sizes']['dropout_rate']
         ))
 
         return layers
@@ -23,7 +23,8 @@ class RNNNet:
     def GRUclass(self):
         if onGPU:
             print('On GPU, using CuDNNGRU layer')
-            return CuDNNGRU
+            return GRU
+            # return CuDNNGRU
         else:
             print('On CPU, using GRU layer')
             return GRU

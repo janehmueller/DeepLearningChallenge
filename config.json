@@ -48,7 +48,8 @@
   "sizes": {
     "rnn_input": 300,
     "rnn_output": 300,
-    "repeat_vector_length": 64
+    "repeat_vector_length": 64,
+    "dropout_rate": 0.2
   },
   "fit_params": {
     "epochs": 36,
