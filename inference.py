@@ -107,7 +107,7 @@ def main():
     for i, prediction in enumerate(predictions):
         print("Image path: " + file_loader.id_file_map[processed_images[i]])
         print(prediction)
-        print("\t" + "\t\n".join(file_loader.id_caption_map[processed_images[i]]) + "\n")
+        print("\t" + "\n\t".join(file_loader.id_caption_map[processed_images[i]]) + "\n")
 
     # predictions = model.predict_generator(prediction_data_generator, steps=1)
     # captions_indices = [np.argmax(pred_caption, axis=1) for pred_caption in predictions]
