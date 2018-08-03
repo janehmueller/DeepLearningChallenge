@@ -15,6 +15,20 @@ class RNNNet:
                 return_sequences=True,
                 dropout=base_configuration['sizes']['dropout_rate'],
                 recurrent_dropout=base_configuration['sizes']['dropout_rate']
+            ),
+            BatchNormalization(),
+            self.GRUclass(
+                base_configuration['sizes']['rnn_output'],
+                return_sequences=True,
+                dropout=base_configuration['sizes']['dropout_rate'],
+                recurrent_dropout=base_configuration['sizes']['dropout_rate']
+            ),
+            BatchNormalization(),
+            self.GRUclass(
+                base_configuration['sizes']['rnn_output'],
+                return_sequences=True,
+                dropout=base_configuration['sizes']['dropout_rate'],
+                recurrent_dropout=base_configuration['sizes']['dropout_rate']
             )
         ]
         return layers
@@ -22,8 +36,9 @@ class RNNNet:
     @property
     def GRUclass(self):
         if onGPU:
-            print('On GPU, using CuDNNGRU layer')
-            return LSTM
+            # print('On GPU, using CuDNNGRU layer')
+            print('On GPU, not using CuDNNGRU layer since we use dropout')
+            return GRU
             # return CuDNNGRU
         else:
             print('On CPU, using GRU layer')

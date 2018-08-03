@@ -12,11 +12,6 @@ from src.file_loader import File
 from src.image_net import ImageNet
 from src.text_preprocessing import TextPreprocessor
 
-from util.loss import categorical_crossentropy_from_logits
-
-
-processed_images = []
-
 
 def prediction_data(images):
     batch_size = base_configuration['batch_size']
@@ -34,30 +29,6 @@ def prediction_data(images):
         image_ids.append(image_id)
         batch_images[i] = image
         i += 1
-
-
-# def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File):
-#     batch_size = base_configuration['batch_size']
-#     image_shape = [299, 299, 3]
-#     batch_images = np.zeros(shape=[batch_size] + image_shape)
-#     caption_length = base_configuration['sizes']['repeat_vector_length']
-#     caption_output_length = caption_length + 1
-#     one_hot_size = text_preprocessor.one_hot_encoding_size
-#     batch_captions = np.zeros(shape=[batch_size, caption_output_length, one_hot_size])
-#     batch_input_captions = np.zeros(shape=[batch_size, caption_length])
-#     i = 0
-#     for image_id, image in images:
-#         for caption in file_loader.id_caption_map[image_id]:
-#             if i >= batch_size:
-#                 # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-#                 yield ([batch_images, batch_input_captions], batch_captions)
-#                 i = 0
-#             batch_images[i] = image
-#             batch_captions[i] = text_preprocessor.encode_caption(caption)
-#             batch_input_captions[i] = text_preprocessor.encode_caption(caption, one_hot=False)
-#             processed_images.append(image_id)
-#             batch_images[i] = image
-#             i += 1
 
 
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Tuple[List[str], List[int]]:
@@ -112,20 +83,6 @@ def main():
         print("Image path: " + file_loader.id_file_map[image_id])
         print(prediction)
         print("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
-
-    # predictions = model.predict_generator(prediction_data_generator, steps=1)
-    # captions_indices = [np.argmax(pred_caption, axis=1) for pred_caption in predictions]
-
-    # sentences = [[text_preprocessor.inverse_vocab.get(caption, None) for caption in caption_indices] for caption_indices in captions_indices]
-    # for i, s in enumerate(sentences):
-    #     print(file_loader.id_file_map[processed_images[i]])
-    #     print(s)
-    #     print(file_loader.id_caption_map[processed_images[i]])
-
-
-    # TODO translate to words via vocabulary of training pass (see serialize and deserialize in text_processing)
-
-    # print("Shape of predictions: {}".format(predictions.shape))
 
 
 if __name__ == '__main__':
