@@ -18,7 +18,7 @@ from util.loss import categorical_crossentropy_from_logits
 processed_images = []
 
 
-def prediction_data(images, file_loader):
+def prediction_data(images):
     batch_size = base_configuration['batch_size']
     image_shape = [299, 299, 3]
     batch_images = np.zeros(shape=[batch_size] + image_shape)
@@ -34,28 +34,28 @@ def prediction_data(images, file_loader):
         i += 1
 
 
-def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File):
-    batch_size = base_configuration['batch_size']
-    image_shape = [299, 299, 3]
-    batch_images = np.zeros(shape=[batch_size] + image_shape)
-    caption_length = base_configuration['sizes']['repeat_vector_length']
-    caption_output_length = caption_length + 1
-    one_hot_size = text_preprocessor.one_hot_encoding_size
-    batch_captions = np.zeros(shape=[batch_size, caption_output_length, one_hot_size])
-    batch_input_captions = np.zeros(shape=[batch_size, caption_length])
-    i = 0
-    for image_id, image in images:
-        for caption in file_loader.id_caption_map[image_id]:
-            if i >= batch_size:
-                # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
-                yield ([batch_images, batch_input_captions], batch_captions)
-                i = 0
-            batch_images[i] = image
-            batch_captions[i] = text_preprocessor.encode_caption(caption)
-            batch_input_captions[i] = text_preprocessor.encode_caption(caption, one_hot=False)
-            processed_images.append(image_id)
-            batch_images[i] = image
-            i += 1
+# def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File):
+#     batch_size = base_configuration['batch_size']
+#     image_shape = [299, 299, 3]
+#     batch_images = np.zeros(shape=[batch_size] + image_shape)
+#     caption_length = base_configuration['sizes']['repeat_vector_length']
+#     caption_output_length = caption_length + 1
+#     one_hot_size = text_preprocessor.one_hot_encoding_size
+#     batch_captions = np.zeros(shape=[batch_size, caption_output_length, one_hot_size])
+#     batch_input_captions = np.zeros(shape=[batch_size, caption_length])
+#     i = 0
+#     for image_id, image in images:
+#         for caption in file_loader.id_caption_map[image_id]:
+#             if i >= batch_size:
+#                 # yield (np.copy(batch_images), np.copy(batch_captions)) PROBABLY WE SHOULD USE THIS
+#                 yield ([batch_images, batch_input_captions], batch_captions)
+#                 i = 0
+#             batch_images[i] = image
+#             batch_captions[i] = text_preprocessor.encode_caption(caption)
+#             batch_input_captions[i] = text_preprocessor.encode_caption(caption, one_hot=False)
+#             processed_images.append(image_id)
+#             batch_images[i] = image
+#             i += 1
 
 
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> List[str]:
@@ -101,8 +101,8 @@ def main():
     image_net = ImageNet(file_loader)
     step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
 
-    # prediction_data_generator = prediction_data(image_net.images, file_loader)
-    prediction_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
+    prediction_data_generator = prediction_data(image_net.images)
+    # prediction_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
     predictions = predict(model, prediction_data_generator, step_size, text_preprocessor)
 
     for i, prediction in enumerate(predictions):
