@@ -13,14 +13,12 @@ import numpy as np
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
-from tensorflow.python.ops.nn_ops import softmax_cross_entropy_with_logits
 
 from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from src.text_preprocessing import TextPreprocessor
-from util.loss import categorical_crossentropy_from_logits
 from util.checkGPU import onGPU, countGPU
 
 
@@ -63,7 +61,7 @@ def main():
     image_net = ImageNet(file_loader)
     rnn_net = RNNNet()
     text_preprocessor = TextPreprocessor()
-    text_preprocessor.process_captions(file_loader.id_caption_map.values())
+    text_preprocessor.process_captions(file_loader.id_caption_map[key] for key in file_loader.id_file_map)
     text_preprocessor.serialize(model_dir)
 
     # Build Model Layers
@@ -83,7 +81,7 @@ def main():
         rnn_out = rnn(input_)
         input_ = rnn_out
 
-    sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='relu'))(rnn_out)
+    sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='softmax'))(rnn_out)
 
     model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
 
