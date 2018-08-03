@@ -88,7 +88,7 @@ def main():
     args = parser.parse_args()
 
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
-    model_path = path.join(model_dir, args.model_name or "model-all.hdf5")
+    model_path = path.join(model_dir, args.model_name + ".hdf5")
     # model_dir = '/home/cps4/DeepLearningChallenge/tmp/model-saves-leo-02'
     # model_path = path.join(model_dir, '{:02d}.hdf5'.format(model_epoch))
 
