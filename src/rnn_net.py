@@ -1,4 +1,4 @@
-from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional
+from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional, BatchNormalization
 from keras.backend.tensorflow_backend import _is_current_explicit_device, _get_available_gpus
 
 from src.config import base_configuration
@@ -8,15 +8,15 @@ from util.checkGPU import onGPU
 class RNNNet:
     @property
     def layers(self) -> list:
-        layers = []
-
-        layers.append(self.GRUclass(
-            base_configuration['sizes']['rnn_output'],
-            return_sequences=True,
-            dropout=base_configuration['sizes']['dropout_rate'],
-            recurrent_dropout=base_configuration['sizes']['dropout_rate']
-        ))
-
+        layers = [
+            BatchNormalization(),
+            self.GRUclass(
+                base_configuration['sizes']['rnn_output'],
+                return_sequences=True,
+                dropout=base_configuration['sizes']['dropout_rate'],
+                recurrent_dropout=base_configuration['sizes']['dropout_rate']
+            )
+        ]
         return layers
 
     @property

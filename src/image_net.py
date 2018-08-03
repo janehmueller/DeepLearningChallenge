@@ -31,7 +31,7 @@ class ImageNet:
         return layers
 
     @property
-    def inception_model(self) -> InceptionV3:
+    def inception_model(self) -> tuple:
         # Initialize with imagenet weights
         inception = InceptionV3(include_top=False, weights="imagenet", pooling="avg")
 
@@ -61,7 +61,7 @@ class ImageNet:
     def images(self):
         def generator():
             while True:
-                print('RESTARTING IMAGE GENERATOR')
+                print('\nRESTARTING IMAGE GENERATOR')
                 for file_id, path in self.file_loader.id_file_map.items():
                     yield (file_id, self.preprocess_image(path))
 

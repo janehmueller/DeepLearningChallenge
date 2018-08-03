@@ -76,9 +76,8 @@ def main():
 
     # RNN Here
     input_ = sequence_input
-    for rnn in rnn_net.layers:
-        #input_ = BatchNormalization(axis=-1)(input_)
-        rnn_out = rnn(input_)
+    for rnn_layer in rnn_net.layers:
+        rnn_out = rnn_layer(input_)
         input_ = rnn_out
 
     sequence_output = TimeDistributed(Dense(text_preprocessor.one_hot_encoding_size, activation='softmax'))(rnn_out)
