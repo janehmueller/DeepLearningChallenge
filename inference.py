@@ -62,9 +62,9 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Li
     for _ in range(0, 1):  # TODO: step_size
         input, label = next(data_generator)
         image, captions = input
-        captions = np.asarray([])
+        captions = predict_batch(model, [image, np.zeros(shape=[base_configuration['batch_size']])], tp)[:, :-1]
         i = 0
-        while i < base_configuration['sizes']['repeat_vector_length'] + 1:
+        while i < base_configuration['sizes']['repeat_vector_length']:
             captions_prediction = predict_batch(model, [image, captions], tp)
             captions = captions_prediction
             i += 1
