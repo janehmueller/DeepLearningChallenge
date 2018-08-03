@@ -128,7 +128,13 @@ class TextPreprocessor(object):
         decoded_captions = []
         # TODO: indices[indices == self.eos_token_index()] = 0
         for caption in index_captions:
-            decoded_captions.append([self.inverse_vocab.get(idx, "<pad>") for idx in caption])
+            decoded_caption = []
+            for index in caption:
+                token = self.inverse_vocab.get(index, "<pad>")
+                decoded_caption.append(token)
+                if token == self.eos_token():
+                    break
+            decoded_captions.append(decoded_caption)
 
         return [" ".join(caption) for caption in decoded_captions]
 

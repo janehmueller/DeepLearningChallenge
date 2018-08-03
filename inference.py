@@ -67,6 +67,9 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Li
         while i < base_configuration['sizes']['repeat_vector_length']:
             captions_prediction = predict_batch(model, [image, captions], tp)
             captions = captions_prediction
+            last_column = captions[:, -1:]
+            if np.all(last_column == tp.eos_token_index()):
+                break
             i += 1
         captions_str = tp.decode_captions_to_str(captions)
         caption_results.extend(captions_str)
