@@ -1,4 +1,4 @@
-from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional, BatchNormalization
+from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional, BatchNormalization, LSTM
 from keras.backend.tensorflow_backend import _is_current_explicit_device, _get_available_gpus
 
 from src.config import base_configuration
@@ -23,7 +23,7 @@ class RNNNet:
     def GRUclass(self):
         if onGPU:
             print('On GPU, using CuDNNGRU layer')
-            return GRU
+            return LSTM
             # return CuDNNGRU
         else:
             print('On CPU, using GRU layer')

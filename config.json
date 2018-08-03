@@ -42,7 +42,8 @@
   },
   "model_hyper_params": {
     "metrics": [
-      "accuracy"
+      "accuracy",
+      "categorical_accuracy"
     ]
   },
   "sizes": {
