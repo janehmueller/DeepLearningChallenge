@@ -61,12 +61,11 @@ def prediction_data(images):
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> List[str]:
     caption_results = []
     for _ in range(0, 1):  # TODO: step_size
-        input, label = next(data_generator)
-        image, captions = input
-        captions = predict_batch(model, [image, np.zeros(shape=[base_configuration['batch_size']])], tp)[:, :-1]
+        image_batch = next(data_generator)
+        captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)[:, :-1]
         i = 0
         while i < base_configuration['sizes']['repeat_vector_length']:
-            captions_prediction = predict_batch(model, [image, captions], tp)
+            captions_prediction = predict_batch(model, [image_batch, captions], tp)
             captions = captions_prediction
             last_column = captions[:, -1:]
             if np.all(last_column == tp.eos_token_index()):
