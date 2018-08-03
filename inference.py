@@ -62,21 +62,20 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Li
     for _ in range(0, 1):  # TODO: step_size
         input, label = next(data_generator)
         image, captions = input
-        captions = np.zeros_like(captions)
-        tmp_results = []
-        for i in range(0, base_configuration['sizes']['repeat_vector_length'] + 1):
-            captions_prediction_string = predict_batch(model, [image, captions], tp)
-            captions = tp.encode_captions(captions_prediction_string, one_hot=False)
-            # tmp_results.append(captions_prediction_string)
-            tmp_results = captions_prediction_string
-        # tmp_results = [' '.join(list(caption_result)) for caption_result in list(zip(*tmp_results))]
-        caption_results.extend(tmp_results)
+        captions = np.asarray([])
+        i = 0
+        while i < base_configuration['sizes']['repeat_vector_length'] + 1:
+            captions_prediction = predict_batch(model, [image, captions], tp)
+            captions = captions_prediction
+            i += 1
+        captions_str = tp.decode_captions_to_str(captions)
+        caption_results.extend(captions_str)
     return caption_results
 
 
-def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> List[str]:
+def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> np.ndarray:
     prediction = model.predict(input_batch, batch_size=base_configuration['batch_size'])
-    return tp.decode_captions(prediction)
+    return tp.decode_captions_to_indices(prediction)
 
 
 def main():

@@ -1,7 +1,7 @@
 import itertools
 import json
 from os import path
-from typing import List, Dict
+from typing import List, Dict, Union
 
 import numpy as np
 from keras import Sequential, Input
@@ -91,14 +91,15 @@ class TextPreprocessor(object):
         # Transform padding one-hot encoding with a 0-filled vector
         return one_hot
 
-    def encode_caption(self, caption, one_hot=True):
+    def encode_caption(self, caption, one_hot: bool = True):
         return self.encode_captions([caption], one_hot)[0]
 
-    def encode_captions(self, captions: List[str], one_hot=True) -> List[np.ndarray]:
+    def encode_captions(self, captions: List[str], one_hot: bool = True) -> List[np.ndarray]:
         """
         Tokenizes and one-hot encodes captions. They are returned as numpy array with the shape
         (num_captions, size_of_longest_caption, vocab_size + 1). Padding is encoded as zero-vector.
         :param captions: list of the captions as string
+        :param one_hot: if the captions should also be one-hot encoded
         :return: list of the one-hot encoded captions as numpy arrays
         """
         captions_indices = self.tokenizer.texts_to_sequences(captions)
@@ -120,6 +121,17 @@ class TextPreprocessor(object):
     def decode_caption(self, one_hot_caption):
         return self.decode_captions(np.asarray([one_hot_caption]))[0]
 
+    def decode_captions_to_indices(self, one_hot_captions: np.ndarray) -> np.ndarray:
+        return np.argmax(one_hot_captions, axis=2)
+
+    def decode_captions_to_str(self, index_captions: np.ndarray) -> List[str]:
+        decoded_captions = []
+        # TODO: indices[indices == self.eos_token_index()] = 0
+        for caption in index_captions:
+            decoded_captions.append([self.inverse_vocab.get(idx, "<pad>") for idx in caption])
+
+        return [" ".join(caption) for caption in decoded_captions]
+
     def decode_captions(self, one_hot_captions: np.ndarray) -> List[str]:
         """
         Decodes one-hot encoded captions into a list of captions as string.
@@ -127,14 +139,8 @@ class TextPreprocessor(object):
         (num_captions, size_of_longest_caption, vocab_size + 1)
         :return: list of decoded captions as string
         """
-        decoded_captions = []
-
-        indices = np.argmax(one_hot_captions, axis=2)
-        # TODO: indices[indices == self.eos_token_index()] = 0
-        for caption in indices:
-            decoded_captions.append([self.inverse_vocab[idx] for idx in caption if idx != 0])
-
-        return [" ".join(caption) for caption in decoded_captions]
+        indices = self.decode_captions_to_indices(one_hot_captions)
+        return self.decode_captions_to_str(indices)
 
     def serialize(self, store_path):
         with open(path.join(store_path, self.VOCAB_FILE), "w") as file:
