@@ -11,7 +11,7 @@ from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.text_preprocessing import TextPreprocessor
-from util.metrics import CIDEr, Score
+from util.metrics import CIDEr, Score, BLEU, METEOR, ROUGE
 
 
 def prediction_data(images):
@@ -89,11 +89,13 @@ def main():
     image_id_to_prediction = predict(model, prediction_data_generator, step_size, text_preprocessor)
     image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
 
-    metrics: List[Score] = [CIDEr()]  # [BLEU(4), METEOR(), CIDEr(), ROUGE()]
+    metrics: List[Score] = [CIDEr(), BLEU(4), ROUGE(), METEOR()]
 
+    print("Scores:")
     for metric in metrics:
-        score = metric.calculate(image_id_to_prediction, image_id_to_captions)
-        print(score)
+        scores = metric.calculate(image_id_to_prediction, image_id_to_captions)
+        for name, score in scores.items():
+            print("\t{}: {}".format(name, score))
 
     for image_id, prediction in image_id_to_prediction.items():
         print("Image path: " + file_loader.id_file_map[image_id])
