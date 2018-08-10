@@ -58,6 +58,6 @@
     "max_queue_size": 32
   },
   "eos_token": "zeornd",
-  "batch_size": 64,
+  "batch_size": 5,
   "image_input_num": 1000
 }

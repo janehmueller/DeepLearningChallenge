@@ -1,3 +1,18 @@
+from numpy.random import seed
+import os
+os.environ['PYTHONHASHSEED'] = '2'
+
+# The below is necessary for starting Numpy generated random numbers
+# in a well-defined initial state.
+
+import numpy as np
+np.random.seed(42)
+
+# The below is necessary for starting core Python generated random numbers
+# in a well-defined state.
+import random
+random.seed(12345)
+
 import itertools
 import math
 from typing import Generator
@@ -9,7 +24,6 @@ import time
 
 from keras import Sequential, Model, Input
 from keras.layers import Dense, TimeDistributed, Concatenate, BatchNormalization
-import numpy as np
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 from keras.callbacks import TensorBoard
