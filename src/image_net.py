@@ -1,7 +1,7 @@
 import itertools
 
 import keras
-from keras import Sequential
+from keras import Sequential, regularizers
 from keras.initializers import RandomNormal
 from keras.layers import Dense, BatchNormalization, RepeatVector
 from keras.optimizers import SGD
@@ -25,7 +25,8 @@ class ImageNet:
             BatchNormalization(),
             Dense(
                 base_configuration['sizes']['rnn_input'],
-                kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)
+                kernel_initializer=RandomNormal(mean=0.0, stddev=1.0),
+                kernel_regularizer=regularizers.l2(0.01)
             ),
             RepeatVector(1)
         ]
@@ -38,10 +39,6 @@ class ImageNet:
         # Fix weights
         for layer in inception.layers:
             layer.trainable = False
-
-        # TODO: regularizer and initializer
-        # kernel_regularizer=self.regularizer,
-        # kernel_initializer=self.initializer
 
         image_model, image_net_layers = inception, self.layers
 
@@ -85,9 +82,8 @@ if __name__ == "__main__":
     model = Sequential()
     [model.add(layer) for layer in image_net.layers]
 
-
     model.compile(loss="mean_squared_error", optimizer=SGD(lr=1e-4))
 
     print(model.predict(np.random.normal(size=[1, 299 * 299 * 3])))
-    #print(model.predict(np.asarray([image_net.preprocess_image("")])))
+    # print(model.predict(np.asarray([image_net.preprocess_image("")])))
 

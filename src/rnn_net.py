@@ -1,3 +1,4 @@
+from keras import regularizers
 from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional, BatchNormalization, LSTM
 from keras.backend.tensorflow_backend import _is_current_explicit_device, _get_available_gpus
 
@@ -14,7 +15,9 @@ class RNNNet:
                 base_configuration['sizes']['rnn_output'],
                 return_sequences=True,
                 dropout=base_configuration['sizes']['dropout_rate'],
-                recurrent_dropout=base_configuration['sizes']['dropout_rate']
+                recurrent_dropout=base_configuration['sizes']['dropout_rate'],
+                kernel_regularizer=regularizers.l2(0.01)
+
             )
         ]
         return layers
