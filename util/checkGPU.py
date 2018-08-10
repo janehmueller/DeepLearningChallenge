@@ -7,6 +7,6 @@ on_GPU = not _is_current_explicit_device('CPU') and len(_get_available_gpus()) >
 gpu_list = os.environ.get('CUDA_VISIBLE_DEVICES', None)
 
 if gpu_list:
-    gpu_list = list(range(0, len(gpu_list)))
+    gpu_list = list(range(0, len(gpu_list.split(","))))
 else:
     gpu_list = []
