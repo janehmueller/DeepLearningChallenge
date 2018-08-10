@@ -36,7 +36,9 @@ def prediction_data(images):
 
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Dict[int, str]:
     image_id_to_prediction = {}
-    for _ in range(0, step_size):  # TODO: step_size
+    print()
+    for batch_num in range(0, step_size):  # TODO: step_size
+        print("\r{}/{} ({})".format(batch_num, step_size, float(batch_num) / step_size), end="")
         image_batch, image_ids = next(data_generator)
         # predict first timestep only the image (and an empty caption)
         captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)
@@ -57,6 +59,7 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Di
             image_id_to_prediction[image_id] = captions_str[index]
         # caption_results.extend(captions_str)
         # image_ids.extend(image_ids)
+    print()
     return image_id_to_prediction
 
 
