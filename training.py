@@ -89,7 +89,7 @@ def main():
 
     model.compile(
         loss="categorical_crossentropy",
-        optimizer=Adam(clipnorm=5.0),
+        optimizer=Adam(clipnorm=5.0, lr=0.01),
         **base_configuration['model_hyper_params']
     )
 
