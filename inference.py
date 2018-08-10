@@ -38,7 +38,7 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Di
     image_id_to_prediction = {}
     print()
     for batch_num in range(0, step_size):  # TODO: step_size
-        print("\r{}/{} ({})".format(batch_num, step_size, float(batch_num) / step_size), end="")
+        print("\r{}/{} ({0:.2f})".format(batch_num, step_size, float(batch_num) / step_size), end="")
         image_batch, image_ids = next(data_generator)
         # predict first timestep only the image (and an empty caption)
         captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)
