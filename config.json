@@ -6,12 +6,12 @@
   "datasets": {
     "coco" : {
       "train":{
-        "train_dir" : "train2014",
-        "train_annotation_file" : "annotations/captions_train2014.json"
+        "image_dir" : "train2014",
+        "annotation_file" : "annotations/captions_train2014.json"
       },
       "validation":{
-        "validation_dir" : "val2014",
-        "validation_annotation_file" : "annotations/captions_val2014.json"
+        "image_dir" : "val2014",
+        "annotation_file" : "annotations/captions_val2014.json"
       }
     }
   },
