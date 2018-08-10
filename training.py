@@ -33,7 +33,7 @@ from src.file_loader import File
 from src.image_net import ImageNet
 from src.rnn_net import RNNNet
 from src.text_preprocessing import TextPreprocessor
-from util.checkGPU import onGPU, countGPU
+from util.checkGPU import on_GPU, gpu_list
 
 
 def model_list_add(model: Sequential, layer_list):
@@ -98,8 +98,8 @@ def main():
 
     model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
 
-    if onGPU and countGPU is None:
-        model = multi_gpu_model(model)
+    if on_GPU is None:
+        model = multi_gpu_model(model, gpu_list)
 
     model.compile(
         loss="categorical_crossentropy",

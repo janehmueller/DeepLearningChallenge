@@ -3,7 +3,7 @@ from keras.layers import RepeatVector, CuDNNGRU, GRU, Bidirectional, BatchNormal
 from keras.backend.tensorflow_backend import _is_current_explicit_device, _get_available_gpus
 
 from src.config import base_configuration
-from util.checkGPU import onGPU
+from util.checkGPU import on_GPU
 
 
 class RNNNet:
@@ -23,7 +23,7 @@ class RNNNet:
 
     @property
     def GRUclass(self):
-        if onGPU:
+        if on_GPU:
             # print('On GPU, using CuDNNGRU layer')
             print('On GPU, not using CuDNNGRU layer since we use dropout')
             return GRU
