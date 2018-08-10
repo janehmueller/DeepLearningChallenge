@@ -36,7 +36,7 @@ def prediction_data(images):
 
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Dict[int, str]:
     image_id_to_prediction = {}
-    for _ in range(0, 1):  # TODO: step_size
+    for _ in range(0, step_size):  # TODO: step_size
         image_batch, image_ids = next(data_generator)
         # predict first timestep only the image (and an empty caption)
         captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)
@@ -105,10 +105,14 @@ def main():
             set_scores[data_name].extend(list(scores.items()))
 
         set_predictions[data_name] = []
+        i = 0
         for image_id, prediction in image_id_to_prediction.items():
+            if i >= 50:
+                break
             set_predictions[data_name].append("Image path: " + file_loader.id_file_map[image_id])
             set_predictions[data_name].append(prediction)
             set_predictions[data_name].append("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
+            i += 1
 
     for data_name, predictions_output in set_predictions.items():
         print("{} Predictions:".format(data_name))
