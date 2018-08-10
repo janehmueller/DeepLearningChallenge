@@ -50,11 +50,12 @@
     "rnn_input": 300,
     "rnn_output": 300,
     "repeat_vector_length": 64,
-    "dropout_rate": 0.2
+    "dropout_rate": 0.4
   },
   "fit_params": {
     "epochs": 36,
-    "max_queue_size": 32
+    "max_queue_size": 32,
+    "learning_rate": 0.01
   },
   "eos_token": "zeornd",
   "batch_size": 64,
