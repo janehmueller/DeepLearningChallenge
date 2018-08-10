@@ -21,14 +21,14 @@ class ImageNet:
 
     @property
     def layers(self) -> list:
-        layers = []
-
-        #layers.append(BatchNormalization(axis=-1))
-        layers.append(Dense(base_configuration['sizes']['rnn_input'],
-                                 kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)))
-        layers.append(RepeatVector(1))
-
-        return layers
+        return [
+            BatchNormalization(),
+            Dense(
+                base_configuration['sizes']['rnn_input'],
+                kernel_initializer=RandomNormal(mean=0.0, stddev=0.1)
+            ),
+            RepeatVector(1)
+        ]
 
     @property
     def inception_model(self) -> tuple:
@@ -45,6 +45,7 @@ class ImageNet:
 
         image_model, image_net_layers = inception, self.layers
 
+        # Add remaining layers behind the inception models
         prev_output = image_model.output
         for layer in image_net_layers:
             prev_output = layer(prev_output)

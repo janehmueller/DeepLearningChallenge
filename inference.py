@@ -88,7 +88,7 @@ def main():
     image_id_to_prediction = predict(model, prediction_data_generator, step_size, text_preprocessor)
     image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
 
-    metrics: List[Score] = [CIDEr(), BLEU(4), ROUGE()]  # , METEOR()]
+    metrics: List[Score] = [CIDEr(), BLEU(4), ROUGE()]
 
     print("Scores:")
     for metric in metrics:
