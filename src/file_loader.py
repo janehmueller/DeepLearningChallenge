@@ -2,6 +2,7 @@ import json
 from os import path
 
 import abc
+from typing import Dict, List
 
 from .config import base_configuration
 
@@ -51,8 +52,8 @@ class CocoFile(File):
 
     def __init__(self):
         super(CocoFile, self).__init__()
-        self._id_file_map = None
-        self._id_caption_map = None
+        self._id_file_map: Dict[str, int] = None
+        self._id_caption_map: Dict[int, List[str]] = None
         self.preprocess()
 
     def preprocess(self):
@@ -63,7 +64,7 @@ class CocoFile(File):
                 self.data['images'] = self.data['images'][:base_configuration['image_input_num']]
 
     @property
-    def id_file_map(self):
+    def id_file_map(self) -> Dict[str, int]:
         if not self._id_file_map:
             self._id_file_map = {}
             for annotation in self.data['images']:
@@ -72,7 +73,7 @@ class CocoFile(File):
         return self._id_file_map
 
     @property
-    def id_caption_map(self):
+    def id_caption_map(self) -> Dict[int, List[str]]:
         if not self._id_caption_map:
             self._id_caption_map = {}
             for annotation in self.data['annotations']:
@@ -91,8 +92,8 @@ class Flickr30kFile(File):
 
     def __init__(self):
         super(Flickr30kFile, self).__init__()
-        self._id_file_map = {}
-        self._id_caption_map = {}
+        self._id_file_map: Dict[str, int] = {}
+        self._id_caption_map: Dict[int, List[str]] = {}
         self.preprocess()
 
     def preprocess(self):

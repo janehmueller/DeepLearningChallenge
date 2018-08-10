@@ -1,7 +1,7 @@
 import math
 from argparse import ArgumentParser
 from os import path
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import numpy as np
 from keras import Model
@@ -11,6 +11,7 @@ from src.config import base_configuration
 from src.file_loader import File
 from src.image_net import ImageNet
 from src.text_preprocessing import TextPreprocessor
+from util.metrics import CIDEr, Score
 
 
 def prediction_data(images):
@@ -31,12 +32,16 @@ def prediction_data(images):
         i += 1
 
 
-def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Tuple[List[str], List[int]]:
+def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Dict[int, str]:
+    image_id_to_prediction = {}
     caption_results = []
     image_ids = []
     for _ in range(0, 1):  # TODO: step_size
         image_batch, image_ids = next(data_generator)
-        captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)[:, :-1]
+        # predict first timestep only the image (and an empty caption)
+        captions = predict_batch(model, [image_batch, np.zeros(shape=[base_configuration['batch_size']])], tp)
+        # remove the prediction result of the empty caption
+        captions = captions[:, :-1]
         i = 0
         while i < base_configuration['sizes']['repeat_vector_length']:
             captions_prediction = predict_batch(model, [image_batch, captions], tp)
@@ -45,10 +50,14 @@ def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Tu
             if np.all(last_column == tp.eos_token_index()):
                 break
             i += 1
+
         captions_str = tp.decode_captions_to_str(captions)
-        caption_results.extend(captions_str)
-        image_ids.extend(image_ids)
-    return caption_results, image_ids
+
+        for index, image_id in enumerate(image_ids):
+            image_id_to_prediction[image_id] = captions_str[index]
+        # caption_results.extend(captions_str)
+        # image_ids.extend(image_ids)
+    return image_id_to_prediction
 
 
 def predict_batch(model: Model, input_batch, tp: TextPreprocessor) -> np.ndarray:
@@ -77,9 +86,16 @@ def main():
 
     prediction_data_generator = prediction_data(image_net.images)
     # prediction_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
-    predictions, image_ids = predict(model, prediction_data_generator, step_size, text_preprocessor)
+    image_id_to_prediction = predict(model, prediction_data_generator, step_size, text_preprocessor)
+    image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
 
-    for prediction, image_id in zip(predictions, image_ids):
+    metrics: List[Score] = [CIDEr()]  # [BLEU(4), METEOR(), CIDEr(), ROUGE()]
+
+    for metric in metrics:
+        score = metric.calculate(image_id_to_prediction, image_id_to_captions)
+        print(score)
+
+    for image_id, prediction in image_id_to_prediction.items():
         print("Image path: " + file_loader.id_file_map[image_id])
         print(prediction)
         print("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
