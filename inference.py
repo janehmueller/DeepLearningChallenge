@@ -80,29 +80,33 @@ def main():
 
     model = load_model(model_path, compile=False)
 
-    # file_loader = File.load_training(base_configuration['selected_dataset'])
-    file_loader = File.load_validation(base_configuration['selected_dataset'])
-    image_net = ImageNet(file_loader)
-    step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
-
-    prediction_data_generator = prediction_data(image_net.images)
-    image_id_to_prediction = predict(model, prediction_data_generator, step_size, text_preprocessor)
-    image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
+    file_loaders = [
+        ("Training", File.load_training(base_configuration['selected_dataset'])),
+        ("Validation", File.load_validation(base_configuration['selected_dataset']))
+    ]
 
     metrics: List[Score] = [CIDEr(), BLEU(4), ROUGE()]
 
-    print("Scores:")
-    for metric in metrics:
-        with redirect_stdout(StringIO()):
-            scores = metric.calculate(image_id_to_prediction, image_id_to_captions)
+    for data_name, file_loader in file_loaders:
+        image_net = ImageNet(file_loader)
+        step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
 
-        for name, score in scores.items():
-            print("\t{}: {}".format(name, score))
+        prediction_data_generator = prediction_data(image_net.images)
+        image_id_to_prediction = predict(model, prediction_data_generator, step_size, text_preprocessor)
+        image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
 
-    for image_id, prediction in image_id_to_prediction.items():
-        print("Image path: " + file_loader.id_file_map[image_id])
-        print(prediction)
-        print("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
+        print("{} Scores:".format(data_name))
+        for metric in metrics:
+            with redirect_stdout(StringIO()):
+                scores = metric.calculate(image_id_to_prediction, image_id_to_captions)
+
+            for name, score in scores.items():
+                print("\t{}: {}".format(name, score))
+
+        for image_id, prediction in image_id_to_prediction.items():
+            print("Image path: " + file_loader.id_file_map[image_id])
+            print(prediction)
+            print("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
 
 
 if __name__ == '__main__':
