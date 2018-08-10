@@ -26,7 +26,7 @@ class RNNNet:
         if onGPU:
             # print('On GPU, using CuDNNGRU layer')
             print('On GPU, not using CuDNNGRU layer since we use dropout')
-            return GRU
+            return LSTM
             # return CuDNNGRU
         else:
             print('On CPU, using GRU layer')
