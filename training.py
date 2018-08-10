@@ -81,7 +81,8 @@ def main():
 
     model = Model(inputs=[image_input, sentence_input], outputs=sequence_output)
 
-    if on_GPU is None:
+    if on_GPU and len(gpu_list) > 1:
+        print("Using multi GPU model...")
         model = multi_gpu_model(model, gpu_list)
 
     model.compile(
