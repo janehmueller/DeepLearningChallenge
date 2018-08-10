@@ -1,7 +1,9 @@
 import math
 from argparse import ArgumentParser
+from contextlib import redirect_stdout
+from io import StringIO
 from os import path
-from typing import List, Tuple, Dict
+from typing import List, Dict
 
 import numpy as np
 from keras import Model
@@ -34,8 +36,6 @@ def prediction_data(images):
 
 def predict(model: Model, data_generator, step_size, tp: TextPreprocessor) -> Dict[int, str]:
     image_id_to_prediction = {}
-    caption_results = []
-    image_ids = []
     for _ in range(0, 1):  # TODO: step_size
         image_batch, image_ids = next(data_generator)
         # predict first timestep only the image (and an empty caption)
@@ -85,7 +85,6 @@ def main():
     step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
 
     prediction_data_generator = prediction_data(image_net.images)
-    # prediction_data_generator = training_data(image_net.images, text_preprocessor, file_loader)
     image_id_to_prediction = predict(model, prediction_data_generator, step_size, text_preprocessor)
     image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
 
@@ -93,7 +92,9 @@ def main():
 
     print("Scores:")
     for metric in metrics:
-        scores = metric.calculate(image_id_to_prediction, image_id_to_captions)
+        with redirect_stdout(StringIO()):
+            scores = metric.calculate(image_id_to_prediction, image_id_to_captions)
+
         for name, score in scores.items():
             print("\t{}: {}".format(name, score))
 
