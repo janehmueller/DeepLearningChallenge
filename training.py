@@ -116,6 +116,16 @@ def main():
 
     model.save(path.join(model_dir, 'model-all.hdf5'), overwrite=True)
 
+    parameter_sequence = ["dropout", "learning_rate", "num_images", "epochs"]
+    parameters = {
+        "dropout": base_configuration["sizes"]["dropout_rate"],
+        "learning_rate": base_configuration["sizes"]["learning_rate"],
+        "num_images": base_configuration["image_input_num"],
+        "epochs": base_configuration["fit_params"]["epochs"]
+    }
+    print(','.join(parameter_sequence))
+    print(','.join([parameters[name] for name in parameter_sequence]))
+
 
 if __name__ == '__main__':
     main()

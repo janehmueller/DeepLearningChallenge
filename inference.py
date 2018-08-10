@@ -114,10 +114,10 @@ def main():
         print("{} Predictions:".format(data_name))
         print("\n".join(predictions_output))
 
-    for data_name, scores in set_scores.items():
-        print("{} Scores:".format(data_name))
-        for name, score in scores:
-            print("\t{}: {}".format(name, score))
+    name_sequence = ["CIDEr", "BLEU(4)", "BLEU(3)", "BLEU(2)", "BLEU(1)", "ROUGE"]
+    scores = ','.join([str(set_scores[name]) for name in name_sequence])
+    print("{} Scores:".format(','.join(name_sequence)))
+    print(scores)
 
 
 if __name__ == '__main__':
