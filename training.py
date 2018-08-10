@@ -1,6 +1,4 @@
-import itertools
 import math
-from typing import Generator
 
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
@@ -52,8 +50,7 @@ def training_data(images, text_preprocessor: TextPreprocessor, file_loader: File
 
 
 def main():
-    timestamp = str(round(time.time()))
-    model_dir = path.join(base_configuration['tmp_path'], 'model-saves') #.' + timestamp)
+    model_dir = path.join(base_configuration['tmp_path'], 'model-saves')
     makedirs(model_dir, exist_ok=True)
 
     file_loader = File.load_training(base_configuration['selected_dataset'])
