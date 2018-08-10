@@ -108,9 +108,9 @@ class TextPreprocessor(object):
         caption_length = base_configuration['sizes']['repeat_vector_length'] + one_hot
 
         # TODO refactor to np.pad!
-        # captions_indices.append([0] * (caption_length))
+        captions_indices.append([0] * (caption_length))
         captions_indices = np.array(list(itertools.zip_longest(*captions_indices, fillvalue=0))).T
-        # captions_indices = captions_indices[:-1]
+        captions_indices = captions_indices[:-1]
 
         if not one_hot:
             return captions_indices
