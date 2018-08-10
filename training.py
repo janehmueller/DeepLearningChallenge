@@ -124,7 +124,7 @@ def main():
         "epochs": base_configuration["fit_params"]["epochs"]
     }
     print(','.join(parameter_sequence))
-    print(','.join([parameters[name] for name in parameter_sequence]))
+    print(','.join([str(parameters[name]) for name in parameter_sequence]))
 
 
 if __name__ == '__main__':
