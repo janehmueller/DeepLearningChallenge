@@ -114,9 +114,10 @@ def main():
         print("{} Predictions:".format(data_name))
         print("\n".join(predictions_output))
 
+    name_sequence = ["CIDEr", "BLEU(4)", "BLEU(3)", "BLEU(2)", "BLEU(1)", "ROUGE"]
     for data_name, scores in set_scores.items():
-        name_sequence = ["CIDEr", "BLEU(4)", "BLEU(3)", "BLEU(2)", "BLEU(1)", "ROUGE"]
-        scores_str = ','.join([str(set_scores[name]) for name in name_sequence])
+        scores_dict = dict(scores)
+        scores_str = ','.join([str(scores_dict[name]) for name in name_sequence])
         print("{} Scores: ({})".format(data_name, ','.join(name_sequence)))
         print(scores_str)
 
