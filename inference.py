@@ -79,15 +79,18 @@ def main():
     text_preprocessor.deserialize(model_dir)
 
     model = load_model(model_path, compile=False)
-
-    file_loaders = [
-        ("Training", File.load_training(base_configuration['selected_dataset'])),
-        ("Validation", File.load_validation(base_configuration['selected_dataset']))
-    ]
-
     metrics: List[Score] = [CIDEr(), BLEU(4), ROUGE()]
 
-    for data_name, file_loader in file_loaders:
+    file_loaders = {
+        "Training": File.load_training(base_configuration['selected_dataset']),
+        "Validation": File.load_validation(base_configuration['selected_dataset'])
+    }
+
+    set_scores = {}
+
+    set_predictions = {}
+
+    for data_name, file_loader in file_loaders.items():
         image_net = ImageNet(file_loader)
         step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
 
@@ -96,17 +99,26 @@ def main():
         image_id_to_captions = {image_id: file_loader.id_caption_map[image_id] for image_id in image_id_to_prediction}
 
         print("{} Scores:".format(data_name))
+        set_scores[data_name] = []
         for metric in metrics:
             with redirect_stdout(StringIO()):
                 scores = metric.calculate(image_id_to_prediction, image_id_to_captions)
+            set_scores[data_name].extend(list(scores.items()))
 
-            for name, score in scores.items():
-                print("\t{}: {}".format(name, score))
-
+        set_predictions[data_name] = []
         for image_id, prediction in image_id_to_prediction.items():
-            print("Image path: " + file_loader.id_file_map[image_id])
-            print(prediction)
-            print("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
+            set_predictions[data_name].append("Image path: " + file_loader.id_file_map[image_id])
+            set_predictions[data_name].append(prediction)
+            set_predictions[data_name].append("\t" + "\n\t".join(file_loader.id_caption_map[image_id]) + "\n")
+
+    for data_name, predictions_output in set_predictions.items():
+        print("{} Predictions:".format(data_name))
+        print("\n".join(predictions_output))
+
+    for data_name, scores in set_scores.items():
+        print("{} Scores:".format(data_name))
+        for name, score in scores:
+            print("\t{}: {}".format(name, score))
 
 
 if __name__ == '__main__':
