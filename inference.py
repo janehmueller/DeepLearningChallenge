@@ -80,7 +80,8 @@ def main():
 
     model = load_model(model_path, compile=False)
 
-    file_loader = File.load(base_configuration['selected_dataset'])
+    file_loader = File.load_training(base_configuration['selected_dataset'])
+    # file_loader = File.load_validation(base_configuration['selected_dataset'])
     image_net = ImageNet(file_loader)
     step_size = math.ceil(image_net.captions_num / base_configuration['batch_size'])
 

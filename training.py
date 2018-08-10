@@ -56,7 +56,7 @@ def main():
     model_dir = path.join(base_configuration['tmp_path'], 'model-saves') #.' + timestamp)
     makedirs(model_dir, exist_ok=True)
 
-    file_loader = File.load(base_configuration['selected_dataset'])
+    file_loader = File.load_training(base_configuration['selected_dataset'])
 
     image_net = ImageNet(file_loader)
     rnn_net = RNNNet()

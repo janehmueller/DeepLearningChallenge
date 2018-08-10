@@ -10,21 +10,22 @@ from .config import base_configuration
 class File:
     DATASET_NAME = None
 
-    def __init__(self):
+    def __init__(self, dataset):
         self.data = None
+        self.dataset = dataset
 
     @staticmethod
-    def load(dataset_name):
-        return class_dict[dataset_name]()
+    def load_training(dataset_name):
+        return class_dict[dataset_name]('train')
+
+    @staticmethod
+    def load_validation(dataset_name):
+        return class_dict[dataset_name]('validation')
 
     @property
-    def test_annotation_path(self):
+    def annotation_path(self):
         return path.join(base_configuration['data_path'],
-                         base_configuration['datasets'][self.DATASET_NAME]['train']['train_annotation_file'])
-
-    def val_annotation_path(self):
-        return path.join(base_configuration['data_path'],
-                         base_configuration['datasets'][self.DATASET_NAME]['validation']['validation_annotation_file'])
+                         base_configuration['datasets'][self.DATASET_NAME][self.dataset]['annotation_file'])
 
     @property
     @abc.abstractmethod
@@ -37,27 +38,22 @@ class File:
         pass
 
     @property
-    def test_image_base_path(self):
+    def image_base_path(self):
         return path.join(base_configuration['data_path'],
-                         base_configuration['datasets'][self.DATASET_NAME]['train']['train_dir'])
-
-    @property
-    def val_image_base_path(self):
-        return path.join(base_configuration['data_path'],
-                         base_configuration['datasets'][self.DATASET_NAME]['validation']['validation_dir'])
+                         base_configuration['datasets'][self.DATASET_NAME][self.dataset]['image_dir'])
 
 
 class CocoFile(File):
     DATASET_NAME = 'coco'
 
-    def __init__(self):
-        super(CocoFile, self).__init__()
+    def __init__(self, dataset):
+        super(CocoFile, self).__init__(dataset)
         self._id_file_map: Dict[str, int] = None
         self._id_caption_map: Dict[int, List[str]] = None
         self.preprocess()
 
     def preprocess(self):
-        with open(self.test_annotation_path) as file:
+        with open(self.annotation_path) as file:
             self.data = json.load(file)
 
             if base_configuration['image_input_num']:
@@ -68,7 +64,7 @@ class CocoFile(File):
         if not self._id_file_map:
             self._id_file_map = {}
             for annotation in self.data['images']:
-                self._id_file_map[annotation['id']] = path.join(self.test_image_base_path, annotation['file_name'])
+                self._id_file_map[annotation['id']] = path.join(self.image_base_path, annotation['file_name'])
 
         return self._id_file_map
 
@@ -90,14 +86,14 @@ class CocoFile(File):
 class Flickr30kFile(File):
     DATASET_NAME = 'flickr30k'
 
-    def __init__(self):
-        super(Flickr30kFile, self).__init__()
+    def __init__(self, dataset):
+        super(Flickr30kFile, self).__init__(dataset)
         self._id_file_map: Dict[str, int] = {}
         self._id_caption_map: Dict[int, List[str]] = {}
         self.preprocess()
 
     def preprocess(self):
-        with open(self.test_annotation_path) as file:
+        with open(self.annotation_path) as file:
             for line in file:
                 tokens = line.split("/t")
                 image_name, caption_nr = tokens[0].split("#")
