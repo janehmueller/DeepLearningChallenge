@@ -17,6 +17,14 @@ class RNNNet:
                 dropout=base_configuration['sizes']['dropout_rate'],
                 recurrent_dropout=base_configuration['sizes']['dropout_rate'],
                 # kernel_regularizer=regularizers.l2(0.01)
+            ),
+            BatchNormalization(),
+            self.GRUclass(
+                base_configuration['sizes']['rnn_output'],
+                return_sequences=True,
+                dropout=base_configuration['sizes']['dropout_rate'],
+                recurrent_dropout=base_configuration['sizes']['dropout_rate'],
+                # kernel_regularizer=regularizers.l2(0.01)
             )
         ]
         return layers
