@@ -26,7 +26,7 @@ class ImageNet:
             Dense(
                 base_configuration['sizes']['rnn_input'],
                 kernel_initializer=RandomNormal(mean=0.0, stddev=1.0),
-                kernel_regularizer=regularizers.l2(0.01)
+                # kernel_regularizer=regularizers.l2(0.01)
             ),
             RepeatVector(1)
         ]

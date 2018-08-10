@@ -16,8 +16,7 @@ class RNNNet:
                 return_sequences=True,
                 dropout=base_configuration['sizes']['dropout_rate'],
                 recurrent_dropout=base_configuration['sizes']['dropout_rate'],
-                kernel_regularizer=regularizers.l2(0.01)
-
+                # kernel_regularizer=regularizers.l2(0.01)
             )
         ]
         return layers
